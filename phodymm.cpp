@@ -6,7 +6,7 @@
 // To compile lcout:
 // make sure demcmc_compile is defined as 0
 // Compile with:
-// g++ -w -O3 -o lcout -I/home/smills/celerite/celerite/cpp/include -I/home/smills/celerite/celerite/cpp/lib/eigen_3.3.3 -lm -lgsl -lgslcblas -fpermissive phodymm.cpp 
+// g++ -w -O3 -o lcout -I/home/smills/celerite/celerite/cpp/include -I/home/smills/celerite/celerite/cpp/lib/eigen_3.3.3 -lm -lgsl -lgslcblas -fpermissive phodymm.cpp
 // or
 // gcc -w -O3 -o lcout.c -lm -lgsl -lgslcblas -fpermissive phodymm.cpp
 // Run with:
@@ -15,7 +15,7 @@
 // To compile demcmc:
 // make sure demcmc_compile is defined as 1
 // mpic++ -w -Ofast -o demcmc -I/home/smills/celerite/celerite/cpp/include -I/home/smills/celerite/celerite/cpp/lib/eigen_3.3.3 -lm -lgsl -lgslcblas -lmpi -fpermissive phodymm.cpp
-// or 
+// or
 // mpic++ -w -Ofast -o demcmc -lm -lgsl -lgslcblas -lmpi -fpermissive phodymm.cpp
 // Run with:
 // mpirun ./demcmc demcmc.in kep.pldin
@@ -26,7 +26,7 @@
 // $ gcc -Ofast -o stability -lgsl -lgslcblas -fopenmp phodymm.c
 // g++ -w -O3 -o lcout -lm -lgsl -lgslcblas -fpermissive phodymm.cpp
 
-#if (demcmc_compile==1) 
+#if (demcmc_compile==1)
 #include <mpi.h>
 #endif
 #include <stdlib.h>
@@ -47,7 +47,7 @@
 // For CELERITE
 #include <cmath>
 #include <iostream>
-#include <Eigen/Core> 
+#include <Eigen/Core>
 #include "celerite/celerite.h"
 using Eigen::VectorXd;
 #endif
@@ -58,7 +58,7 @@ int RVCELERITE;
 int NRVCELERITE=4;
 
 // These variables are now all defined in the input file instead of here
-// turn on N temperature annealing 
+// turn on N temperature annealing
 int NTEMPS;
 // turn on one sided inclination distribution
 int IGT90;
@@ -72,7 +72,7 @@ int DIGT0;
 int SQRTE;
 // restrict masses to > 0
 int MGT0;
-double MASSHIGH; 
+double MASSHIGH;
 int MASSPRIOR;
 double *MASSPRIORCENTERS;
 double *MASSPRIORSIGMAS;
@@ -81,7 +81,7 @@ int DENSITYCUTON;
 double *MAXDENSITY;// g/cm^3
 double MSUNGRAMS = 1.98855e33; // g
 double RSUNCM = 6.95700e10; // cm
-// eccentricity cuts. 
+// eccentricity cuts.
 int ECUTON;
 double *EMAX;
 // turn on eccentricity prior.
@@ -108,14 +108,14 @@ double normalpdf (double x) {
 }
 
 
-// Spectroscopy Constraints - Currently only works for single star. Don't use it for multistar. 
+// Spectroscopy Constraints - Currently only works for single star. Don't use it for multistar.
 int SPECTROSCOPY;
 // Assumes assymetric Gaussian
 double SPECRADIUS=0.;
 double SPECERRPOS=0.;
 double SPECERRNEG=0.;
 
-// Spectroscopy Constraints - Currently only works for single star. Don't use it for multistar. 
+// Spectroscopy Constraints - Currently only works for single star. Don't use it for multistar.
 int MASSSPECTROSCOPY;
 // Assumes assymetric Gaussian
 double SPECMASS=0.;
@@ -190,7 +190,7 @@ double AFRACSTABLE = 0.10;
 #endif
 
 
-// Variables for Fitting additional TTVs 
+// Variables for Fitting additional TTVs
 // as of now the ttv input files MUST be SORTED numerically and at same epoch
 int TTVCHISQ;
 long **NTTV;  //number
@@ -215,7 +215,7 @@ const int SOFIS = sizeof(int*);
 #define RSUNAU  0.0046491            ///* solar radius in au */
 #define REARTHORSUN 0.009171    ///* earth radius divided by solar radius */
 #define MPSTOAUPD 5.77548327363993e-7    ///* meters per second to au per day conversion factor */
-#define MSOMJ 1.04737701464237e3  ///* solar mass in terms of jupiter masses */ 
+#define MSOMJ 1.04737701464237e3  ///* solar mass in terms of jupiter masses */
 #define CAUPD 173.144632674240  ///* speed of light in AU per day */
 
 //Note in dpintegrator and related code:
@@ -271,9 +271,9 @@ int func (double t, const double y[], double f[], void *params) {
     for(j=0; j<3; j++) {
       f[i*6+j] = y[i*6+3+j];  /* x dot = v */
       f[i*6+3+j] = -gmc1*y[i*6+j]*rc1m3;   /* Pull of the star. */
-    }   
+    }
   }
- 
+
   /* Interaction between each pair of planets. */
   /* Eqn 6.8,6.9 in Murray and Dermott */
   /* Astrocentric coordinates are used (i.e. center of star is origin) */
@@ -284,7 +284,7 @@ int func (double t, const double y[], double f[], void *params) {
       gm2 = G*masses[i2+1];
       rc2m3 = pow(pow(y[i2*6+0],2)+pow(y[i2*6+1],2)+pow(y[i2*6+2],2),-3.0/2);
       r12m3 = pow(pow(y[i1*6+0]-y[i2*6+0],2)+pow(y[i1*6+1]-y[i2*6+1],2)+pow(y[i1*6+2]-y[i2*6+2],2),-3.0/2);
-  
+
       for(j=0; j<3; j++) f[i1*6+3+j] += -gm2*( (y[i1*6+j]-y[i2*6+j])*r12m3 + y[i2*6+j]*rc2m3 );
       for(j=0; j<3; j++) f[i2*6+3+j] += -gm1*( (y[i2*6+j]-y[i1*6+j])*r12m3 + y[i1*6+j]*rc1m3 );
     }
@@ -300,9 +300,9 @@ void *jac;
 
 
 
-// Helper for checking if certain parameters are out of 
+// Helper for checking if certain parameters are out of
 int check_boundaries( double *p0local, long nw) {
-  
+
   int notallowed = 0;
   const int npl = NPL;
   const int pperwalker = PPERWALKER;
@@ -311,8 +311,8 @@ int check_boundaries( double *p0local, long nw) {
   int ip;
 
 
- 
-  for (ip=0; ip<npl; ip++) { 
+
+  for (ip=0; ip<npl; ip++) {
     // make sure i and Omega angles are not cycling through:
     if ( p0local[nw*pperwalker+ip*pperplan+4] < 0.0 || p0local[nw*pperwalker+ip*pperplan+4] > 180.0 ) notallowed=1;
     if ( p0local[nw*pperwalker+ip*pperplan+5] < -180.0 || p0local[nw*pperwalker+ip*pperplan+5] > 180.0 ) notallowed=1;
@@ -323,7 +323,7 @@ int check_boundaries( double *p0local, long nw) {
     if ( MGT0 && (p0local[nw*pperwalker+ip*pperplan+6] < 0.0) ) notallowed=1;
     //make sure density is allowed
     if (DENSITYCUTON) {
-      double massg = p0local[nw*pperwalker+ip*pperplan+6] / MSOMJ * MSUNGRAMS; 
+      double massg = p0local[nw*pperwalker+ip*pperplan+6] / MSOMJ * MSUNGRAMS;
       double radcm = p0local[nw*pperwalker+npl*pperplan+1] * p0local[nw*pperwalker+ip*pperplan+7] * RSUNCM;
       double rhogcc = massg / (4./3.*M_PI*radcm*radcm*radcm);
       if (rhogcc > MAXDENSITY[ip]) notallowed=1;
@@ -345,7 +345,7 @@ int check_boundaries( double *p0local, long nw) {
       }
     }
   }
-  
+
   // check that celerite terms >= 0
   if (CELERITE) {
       int ki;
@@ -363,7 +363,7 @@ int check_boundaries( double *p0local, long nw) {
         }
       }
   }
-  
+
   double* evector = malloc(npl*sofd);
   if (ECUTON) {
     if (SQRTE) {
@@ -384,13 +384,13 @@ int check_boundaries( double *p0local, long nw) {
       if (evector[i0] > emax[i0] ) notallowed=1;
     }
   }
-  
+
   // make sure ld coefficients in range
   // this prior only applies to the Pal+2011 code
   if ( (LDLAW == 0) && (p0local[nw*pperwalker+npl*pperplan+2] < 0.0 || p0local[nw*pperwalker+npl*pperplan+2] > 1.0 || p0local[nw*pperwalker+npl*pperplan+3] < 0.0 || p0local[nw*pperwalker+npl*pperplan+3] > 1.0) ) notallowed=1;
- 
+
   free(evector);
- 
+
   return notallowed;
 }
 
@@ -406,10 +406,10 @@ double compute_priors(double *p0local, int i) {
     const int npl = NPL;
 
     double photoradius;
-    photoradius = p0local[i*pperwalker+npl*pperplan+1]; 
+    photoradius = p0local[i*pperwalker+npl*pperplan+1];
     double photomass;
-    photomass = p0local[i*pperwalker+npl*pperplan+0]; 
-    double* evector; 
+    photomass = p0local[i*pperwalker+npl*pperplan+0];
+    double* evector;
     evector = malloc(npl*sofd);
 
     if (EPRIOR) {
@@ -445,7 +445,7 @@ double compute_priors(double *p0local, int i) {
         double massratioi = massi / photomass;
         neg2logliketemp += -2.*log(1./(sqrt(2.*M_PI)*MASSPRIORSIGMAS[i0]));
         neg2logliketemp += pow((massratioi - MASSPRIORCENTERS[i0])/MASSPRIORSIGMAS[i0], 2);
-      } 
+      }
     }
 
     if (SPECTROSCOPY) {
@@ -471,7 +471,7 @@ double compute_priors(double *p0local, int i) {
     if (INCPRIOR) {
       int i0;
       for (i0=0; i0<npl; i0++) {
-        neg2logliketemp += -2.0*log( sin(p0local[i*pperwalker+i0*pperplan+4] *M_PI/180.) ); 
+        neg2logliketemp += -2.0*log( sin(p0local[i*pperwalker+i0*pperplan+4] *M_PI/180.) );
       }
     }
 
@@ -485,14 +485,14 @@ double compute_priors(double *p0local, int i) {
 
 #if (celerite_compile == 1)
 // Wrapper for computing a celerite fit and returning the effective chi^2
-double celerite_fit(double*** flux_rvs, double* p0local, int i, int rvflag, int verbose)  { 
+double celerite_fit(double*** flux_rvs, double* p0local, int i, int rvflag, int verbose)  {
 
   const int npl = NPL;
   const int pperplan = PPERPLAN;
   const int pperwalker = PPERWALKER;
   const int sofd = SOFD;
 
-  double neg2loglike;  
+  double neg2loglike;
 
   double *xs = flux_rvs[rvflag][0];
   long maxil = (long) xs[0];
@@ -501,15 +501,15 @@ double celerite_fit(double*** flux_rvs, double* p0local, int i, int rvflag, int 
   double *es = flux_rvs[rvflag][3];
   double *diffys = malloc(sofd*maxil);
   int il;
-  for (il=0; il<maxil; il++) { 
+  for (il=0; il<maxil; il++) {
     diffys[il] = trueys[il+1]-modelys[il+1];
   }
   double *yvarp = malloc(sofd*maxil);
-  for (il=0; il<maxil; il++) { 
-    yvarp[il] = es[il+1]*es[il+1]; 
+  for (il=0; il<maxil; il++) {
+    yvarp[il] = es[il+1]*es[il+1];
   }
-  double *xp = &xs[1]; 
-  
+  double *xp = &xs[1];
+
   int j_real = 0;
   int j_complex;
   double jitter, k1, k2, k3, S0, w0, Q;
@@ -546,15 +546,15 @@ double celerite_fit(double*** flux_rvs, double* p0local, int i, int rvflag, int 
     c_comp << k3*(1. - k2), k3*(1. + k2);
     d_comp << 0., 0.;
   }
-  
-  if (verbose) {  
+
+  if (verbose) {
     printf("%lf %lf %lf %lf\n", jitter, S0, w0, Q);
   }
 
   VectorXd x = VectorXd::Map(xp, maxil);
   VectorXd yvar = VectorXd::Map(yvarp, maxil);
   VectorXd dy = VectorXd::Map(diffys, maxil);
-  
+
   celerite::solver::CholeskySolver<double> solver;
   solver.compute(
         jitter,
@@ -562,16 +562,16 @@ double celerite_fit(double*** flux_rvs, double* p0local, int i, int rvflag, int 
         a_comp, b_comp, c_comp, d_comp,
         x, yvar  // Note: this is the measurement _variance_
     );
-  
+
   // see l.186-192 in celerite.py
   double logdet, diffs, llike;
   logdet = solver.log_determinant();
-  diffs = solver.dot_solve(dy); 
-  llike = -0.5 * (diffs + logdet); 
-  
+  diffs = solver.dot_solve(dy);
+  llike = -0.5 * (diffs + logdet);
+
   neg2loglike = diffs+logdet;
-  
-  if (verbose) { 
+
+  if (verbose) {
     printf("Celerite params:\n");
     printf("a+comp=%25.17lf\n", a_comp[0]);
     printf("b+comp=%25.17lf\n", b_comp[0]);
@@ -580,11 +580,11 @@ double celerite_fit(double*** flux_rvs, double* p0local, int i, int rvflag, int 
     printf("diffs=%lf\n", diffs);
     printf("logdet=%lf\n", logdet);
     printf("llike=%lf\n", llike);
-  
+
     VectorXd prediction = solver.predict(dy, x);
 
     printf("predicted\n");
- 
+
     char tmtefstr[1000];
     //memset(tmtefstr, '\0', sizeof(tmtefstr));
     char str1[100];
@@ -599,7 +599,7 @@ double celerite_fit(double*** flux_rvs, double* p0local, int i, int rvflag, int 
     strcat(tmtefstr, ".gp_");
     strcat(tmtefstr, str1);
     strcat(tmtefstr, "out");
-    printf("Saving GP fit to: %s\n", tmtefstr); 
+    printf("Saving GP fit to: %s\n", tmtefstr);
     FILE *tmtef;
     tmtef = fopen(tmtefstr, "a");
     long ijk;
@@ -607,7 +607,7 @@ double celerite_fit(double*** flux_rvs, double* p0local, int i, int rvflag, int 
       fprintf(tmtef, "%.12lf \n", prediction[ijk]);
     }
     fclose(tmtef);// = openf(tmtstr,"w");
-    
+
     printf("saved\n");
   }
 
@@ -617,12 +617,12 @@ double celerite_fit(double*** flux_rvs, double* p0local, int i, int rvflag, int 
   return neg2loglike;
 
 }
-#endif 
-#if (celerite_compile == 0)
-// dummy function if celerite is not used to compile the code 
-double celerite_fit(double*** flux_rvs, double* p0local, int i, int rvflag, int verbose) {} 
 #endif
- 
+#if (celerite_compile == 0)
+// dummy function if celerite is not used to compile the code
+double celerite_fit(double*** flux_rvs, double* p0local, int i, int rvflag, int verbose) {}
+#endif
+
 
 
 
@@ -650,19 +650,19 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
   double dilute = int_in[3][0][3];
 
 
-  const gsl_odeiv_step_type * T 
+  const gsl_odeiv_step_type * T
   /*   = gsl_odeiv_step_bsimp;   14 s */
   = gsl_odeiv_step_rk8pd;   /* 3 s */
   /*  = gsl_odeiv_step_rkf45;    14 s */
   /*  = gsl_odeiv_step_rk4;  26 s */
 
-  gsl_odeiv_step * s 
+  gsl_odeiv_step * s
     = gsl_odeiv_step_alloc (T, 6*npl);
-  gsl_odeiv_control * c 
+  gsl_odeiv_control * c
     = gsl_odeiv_control_y_new (DY, 0.0);
-  gsl_odeiv_evolve * e 
+  gsl_odeiv_evolve * e
     = gsl_odeiv_evolve_alloc (6*npl);
-  
+
   long i;
   double mu[npl+1];
   double npl_mu[npl+2];
@@ -670,20 +670,20 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
 
   double t; /* this is the given epoch. */
 
-  double hhere;  
+  double hhere;
   double y[6*npl], yin[6*npl];
   //note:rad is in units of rp/rstar
   double *rad = malloc(npl*sofd);
 
-  mu[0] = int_in[2][0][0]; 
- 
+  mu[0] = int_in[2][0][0];
+
   for (i=0; i<npl; i++) {
     mu[i+1] = int_in[2][i+1][0];
     int ih;
     for (ih=0; ih<6; ih++) {
       yin[i*6+ih] = int_in[2][i+1][ih+1];
     }
-    rad[i] = int_in[2][i+1][7];  
+    rad[i] = int_in[2][i+1][7];
   }
 
   memcpy(&npl_mu[1], mu, (npl+1)*sofd);
@@ -720,12 +720,12 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
     amin[i] = aorig*(1.0-AFRACSTABLE);
   }
 #endif
- 
+
  /* Setup forward integration */
   seteq(npl, y, yin);
-  double dp[npl], ddpdt, dpold[npl] ;  /* dp = dot-product = x.v */ 
+  double dp[npl], ddpdt, dpold[npl] ;  /* dp = dot-product = x.v */
   for(pl=0; pl<npl; pl++) dp[pl]=y[0+pl*6]*y[3+pl*6]+y[1+pl*6]*y[4+pl*6];
-  double ps2, dist2;  /* ps2 = projected separation squared. */ 
+  double ps2, dist2;  /* ps2 = projected separation squared. */
   t = tstart;
   double h = HStart;
 
@@ -739,18 +739,18 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
   if (transitarr == NULL) {
     printf("Allocation Error\n");
     exit(0);
-  } 
+  }
   long ntransits = 0;
 
   long vv = 0;
 
-  // This messes up reduced chi squared if your rv values are outside of the integration time!!!  
+  // This messes up reduced chi squared if your rv values are outside of the integration time!!!
   // But we are only comparing relative chi squareds
   // Plus just don't include rv times that aren't within your integration bounds, because that's silly
   double *rvarr;
   double *rvtarr;
   int onrv = 0;
-  int rvcount, startrvcount; 
+  int rvcount, startrvcount;
   if (RVS) {
     vv = (long) tve[0][0];
     rvarr = calloc(vv+1, sofd);
@@ -840,7 +840,7 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
     }
   }
 #endif
- 
+
   int *ttvi;
   int *ttviinit;
   if (TTVCHISQ) {
@@ -856,12 +856,12 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
 
 #if ( demcmc_compile==0 )
   printf("starting integration.\n");
-  printf("t=%lf tepoch=%lf t1=%lf t0=%lf h=%lf\n", t, tstart, t1, t0, h); 
+  printf("t=%lf tepoch=%lf t1=%lf t0=%lf h=%lf\n", t, tstart, t1, t0, h);
 #endif
 
 
   // Main forward integration loop
-  while (t < t1 ) {      
+  while (t < t1 ) {
 
 #if ( demcmc_compile==0 )
     int printtime=0;
@@ -880,7 +880,7 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
 
     if (RVS) {
       onrv=0;
-      if (h + t > rvtarr[rvcount]) {  
+      if (h + t > rvtarr[rvcount]) {
         onrv = 1;
         hhere = h;
         h = rvtarr[rvcount] - t;
@@ -897,7 +897,7 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
 #endif
 
     int status = gsl_odeiv_evolve_apply (e, c, s,
-                                         &sys, 
+                                         &sys,
                                          &t, t1,
                                          &h, y);
 
@@ -922,7 +922,7 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
         }
         fprintf(outfile2, "\t%.15lf", mu[i+1]*MSOMJ);
         fprintf(outfile2, "\t%.15lf", rad[i]);
-  
+
         fprintf(outfile2, "\n");
         pnum+=0.1;
       }
@@ -950,7 +950,7 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
         fprintf(stabout, "%.13lf\t%i\t%.13lf\t%.13lf\t%.13lf\t%.13lf\t%.13lf\t%.13lf\t%.13lf\n", orbt, i, aeielem[0], orbarray[i][0], orbarray[i][1], orbarray[i][2]*180.0/M_PI, orbarray[i][3]*180.0/M_PI, orbarray[i][4]*180.0/M_PI, orbarray[i][5]*180.0/M_PI);
         fprintf(stabout2, "%.13lf\t%i\t%.13lf\t%.13lf\t%.13lf\t%.13lf\t%.13lf\t%.13lf\n", orbt, i, y[0+i*6], y[1+i*6], y[2+i*6], y[3+i*6], y[4+i*6], y[5+i*6]);
         if (orbarray[i][0] > amax[i] || orbarray[i][0] < amin[i]) {
-          stabilitystatus = 1; 
+          stabilitystatus = 1;
           tlast = orbt;
         }
         free(orbarray[i]);
@@ -971,7 +971,7 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
       if (nposorbouts % 1 == 0) fflush(stabout);
       if (nposorbouts % 1 == 0) fflush(stabout2);
     }
-    if (stabilitystatus == 1) { 
+    if (stabilitystatus == 1) {
       printf("Went Unstable -> Break\n");
       break;
     }
@@ -986,7 +986,7 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
         for (i=0; i<npl; i++) {
           vstar += -y[i*6+5]*mu[i+1]/mtot;
         }
-        rvarr[rvcount] = vstar;    
+        rvarr[rvcount] = vstar;
         rvcount += 1;
       }
     }
@@ -998,9 +998,9 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
       dp[pl]=y[0+pl*6]*y[3+pl*6]+y[1+pl*6]*y[4+pl*6];
       ps2=y[0+pl*6]*y[0+pl*6]+y[1+pl*6]*y[1+pl*6];
 
-      if( /* 0 == 1 */ dp[pl]*dpold[pl] <= 0 && ps2 < dist2/dist2divisor && y[2+pl*6] < 0 ) { 
-                     /* A minimum projected-separation occurred: "Tc".  
-                   ps2 constraint makes sure it's when y^2+z^2 is small-- its on the face of the star.  
+      if( /* 0 == 1 */ dp[pl]*dpold[pl] <= 0 && ps2 < dist2/dist2divisor && y[2+pl*6] < 0 ) {
+                     /* A minimum projected-separation occurred: "Tc".
+                   ps2 constraint makes sure it's when y^2+z^2 is small-- its on the face of the star.
                    y[2] constraint means a primary eclipse, presuming that the observer is on the positive x=y[2] axis. */
 
         transitcount[pl] += 1;  /* Update the transit number. */
@@ -1008,7 +1008,7 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
         seteq(npl, yhone, y);
         thone = t;
         i=0;
-        do { 
+        do {
           func (thone, yhone, dydt, npl_mu);
           ddpdt = dydt[0+pl*6]*dydt[0+pl*6] + dydt[1+pl*6]*dydt[1+pl*6] + yhone[0+pl*6]*dydt[3+pl*6] + yhone[1+pl*6]*dydt[4+pl*6];
           tstep = - dp[pl] / ddpdt;
@@ -1017,7 +1017,7 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
           dp[pl]=yhone[0+pl*6]*yhone[3+pl*6]+yhone[1+pl*6]*yhone[4+pl*6];
           i++;
         } while (i<5 && fabs(tstep)>eps);
-        
+
         dp[pl]=y[0+pl*6]*y[3+pl*6]+y[1+pl*6]*y[4+pl*6];
 
         double zp=0;
@@ -1025,7 +1025,7 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
         if (LTE) {
           baryz = 0;
           for(i=0; i<npl; i++) baryz += yhone[2+i*6]*mu[i+1];
-          baryz /= mtot; 
+          baryz /= mtot;
           zp = yhone[2+pl*6]/CAUPD;
           zb = baryz/CAUPD;
           zp -= zb;
@@ -1035,7 +1035,7 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
 
 #if ( (demcmc_compile == 0) )//|| (demcmc_compile == 3) )
         dist = sqrt(pow(yhone[0+pl*6],2)+pow(yhone[1+pl*6],2));
-        vtrans = sqrt(pow(yhone[3+pl*6],2)+pow(yhone[4+pl*6],2)); 
+        vtrans = sqrt(pow(yhone[3+pl*6],2)+pow(yhone[4+pl*6],2));
         fprintf(directory[pl], "%6d  %.18e  %.10e  %.10e\n", transitcount[pl], t2, dist, vtrans);
 #endif
 
@@ -1054,14 +1054,14 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
           double bsign=1.;
           if (yhone[1+pl*6] < 0.) bsign=-1;
           dist = sqrt(pow(yhone[0+pl*6],2)+pow(yhone[1+pl*6],2));
-          vtrans = sqrt(pow(yhone[3+pl*6],2)+pow(yhone[4+pl*6],2)); 
+          vtrans = sqrt(pow(yhone[3+pl*6],2)+pow(yhone[4+pl*6],2));
           fprintf(directory[pl], "%6d  %.18e  %.10e  %.10e\n", transitcount[pl], t2, bsign*dist, vtrans);
         }
 #endif
 
 #if (demcmc_compile != 3)
         transitarr[ntransits*ntarrelem+0] = t2;
-        transitarr[ntransits*ntarrelem+1] = yhone[0+pl*6]; 
+        transitarr[ntransits*ntarrelem+1] = yhone[0+pl*6];
         transitarr[ntransits*ntarrelem+2] = yhone[1+pl*6];
         transitarr[ntransits*ntarrelem+3] = yhone[3+pl*6];
         transitarr[ntransits*ntarrelem+4] = yhone[4+pl*6];
@@ -1071,7 +1071,7 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
           printf("Too many transits - increase maxtransits\n");
           fflush(stdout);
           toomany=1;
-          goto exitgracefully; 
+          goto exitgracefully;
         }
 #endif
       }
@@ -1104,7 +1104,7 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
     orbt = t-TINTERVAL;// /2.0;
   }
 #endif
-  
+
   if (TTVCHISQ) {
     for (i=0; i<npl; i++) {
       ttvi[i] = ttviinit[i]-1;
@@ -1113,13 +1113,13 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
 
 #if ( demcmc_compile==0 )
   printf("RE starting integration.\n");
-  printf("t=%lf tepoch=%lf t1=%lf t0=%lf h=%lf\n", t, tstart, t1, t0, h); 
+  printf("t=%lf tepoch=%lf t1=%lf t0=%lf h=%lf\n", t, tstart, t1, t0, h);
 #endif
 
-  while (t > t0+1) {      
+  while (t > t0+1) {
     if (RVS) {
       onrv=0;
-      if ( (h + t) < rvtarr[rvcount]) {  
+      if ( (h + t) < rvtarr[rvcount]) {
         onrv = 1;
         hhere = h;
         h = rvtarr[rvcount] - t;
@@ -1136,7 +1136,7 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
 #endif
 
     int status = gsl_odeiv_evolve_apply (e, c, s,
-                                         &sys, 
+                                         &sys,
                                          &t, t0,
                                          &h, y);
 
@@ -1152,7 +1152,7 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
         fprintf(stabout, "%.13lf\t%i\t%.13lf\t%.13lf\t%.13lf\t%.13lf\t%.13lf\t%.13lf\t%.13lf\n", orbt, i, aeielem[0], orbarray[i][0], orbarray[i][1], orbarray[i][2]*180.0/M_PI, orbarray[i][3]*180.0/M_PI, orbarray[i][4]*180.0/M_PI, orbarray[i][5]*180.0/M_PI);
         fprintf(stabout2, "%.13lf\t%i\t%.13lf\t%.13lf\t%.13lf\t%.13lf\t%.13lf\t%.13lf\n", orbt, i, y[0+i*6], y[1+i*6], y[2+i*6], y[3+i*6], y[4+i*6], y[5+i*6]);
         if (orbarray[i][0] > amax[i] || orbarray[i][0] < amin[i]) {
-          stabilitystatus = 1; 
+          stabilitystatus = 1;
           tlast = orbt;
         }
         free(orbarray[i]);
@@ -1164,7 +1164,7 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
         orbt -= TINTERVAL;
       }
     }
-    if (stabilitystatus == 1) { 
+    if (stabilitystatus == 1) {
       printf("Went Unstable -> Break\n");
       break;
     }
@@ -1178,7 +1178,7 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
         for (i=0; i<npl; i++) {
           vstar += -y[i*6+5]*mu[i+1]/mtot;
         }
-        rvarr[rvcount] = vstar;    
+        rvarr[rvcount] = vstar;
         rvcount -= 1;
       }
     }
@@ -1191,9 +1191,9 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
       dp[pl]=y[0+pl*6]*y[3+pl*6]+y[1+pl*6]*y[4+pl*6];
       ps2=y[0+pl*6]*y[0+pl*6]+y[1+pl*6]*y[1+pl*6];
 
-      if( /* 0 == 1 */ dp[pl]*dpold[pl] <= 0 && ps2 < dist2/dist2divisor && y[2+pl*6] < 0 ) { 
-                /* A minimum projected-separation occurred: "Tc".  
-                   ps2 constraint makes sure it's when y^2+z^2 is small-- its on the face of the star.  
+      if( /* 0 == 1 */ dp[pl]*dpold[pl] <= 0 && ps2 < dist2/dist2divisor && y[2+pl*6] < 0 ) {
+                /* A minimum projected-separation occurred: "Tc".
+                   ps2 constraint makes sure it's when y^2+z^2 is small-- its on the face of the star.
                    y[0] constraint means a primary eclipse, presuming that the observer is on the positive x=y[0] axis. */
 
         transitcount[pl] -= 1;  /* Update the transit number. */
@@ -1209,7 +1209,7 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
           thone += tstep;
           dp[pl]=yhone[0+pl*6]*yhone[3+pl*6]+yhone[1+pl*6]*yhone[4+pl*6];
           i++;
-        } while (i<5 && fabs(tstep)>eps); 
+        } while (i<5 && fabs(tstep)>eps);
           dp[pl]=y[0+pl*6]*y[3+pl*6]+y[1+pl*6]*y[4+pl*6];
 
         double zp=0;
@@ -1217,7 +1217,7 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
         if (LTE) {
           baryz = 0;
           for(i=0; i<npl; i++) baryz += yhone[2+i*6]*mu[i+1];
-          baryz /= mtot; 
+          baryz /= mtot;
           zp = yhone[2+pl*6]/CAUPD;
           zb = baryz/CAUPD;
           zp -= zb;
@@ -1226,12 +1226,12 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
 
 #if ( demcmc_compile == 0 )//|| demcmc_compile == 3)
         dist = sqrt(pow(yhone[0+pl*6],2)+pow(yhone[1+pl*6],2));
-        vtrans = sqrt(pow(yhone[3+pl*6],2)+pow(yhone[4+pl*6],2)); 
+        vtrans = sqrt(pow(yhone[3+pl*6],2)+pow(yhone[4+pl*6],2));
         fprintf(directory[pl], "%6d  %.18e  %.10e  %.10e\n", transitcount[pl], t2, dist, vtrans);
 #endif
 
         if (TTVCHISQ) {
-          if (ttvi[pl] >= 0 && transitcount[pl] == NTTV[pl][ttvi[pl]+1]) { 
+          if (ttvi[pl] >= 0 && transitcount[pl] == NTTV[pl][ttvi[pl]+1]) {
 #if (demcmc_compile==0)
             MTTV[pl][ttvi[pl]+1]=t2;
 #endif
@@ -1244,14 +1244,14 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
           double bsign=1.;
           if (yhone[1+pl*6] < 0.) bsign=-1;
           dist = sqrt(pow(yhone[0+pl*6],2)+pow(yhone[1+pl*6],2));
-          vtrans = sqrt(pow(yhone[3+pl*6],2)+pow(yhone[4+pl*6],2)); 
+          vtrans = sqrt(pow(yhone[3+pl*6],2)+pow(yhone[4+pl*6],2));
           fprintf(directory[pl], "%6d  %.18e  %.10e  %.10e\n", transitcount[pl], t2, bsign*dist, vtrans);
         }
 #endif
 
 #if (demcmc_compile != 3)
         transitarr[ntransits*ntarrelem+0] = t2;
-        transitarr[ntransits*ntarrelem+1] = yhone[0+pl*6]; 
+        transitarr[ntransits*ntarrelem+1] = yhone[0+pl*6];
         transitarr[ntransits*ntarrelem+2] = yhone[1+pl*6];
         transitarr[ntransits*ntarrelem+3] = yhone[3+pl*6];
         transitarr[ntransits*ntarrelem+4] = yhone[4+pl*6];
@@ -1261,7 +1261,7 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
           printf("Too many transits - increase maxtransits\n");
           fflush(stdout);
           toomany=1;
-          goto exitgracefully; 
+          goto exitgracefully;
         }
 #endif
 
@@ -1275,11 +1275,11 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
 
   long negtransits;
   negtransits = ntransits-postransits;
-  
+
 #if ( demcmc_compile==3)
   int negstability = 0;
   if (stabilitystatus==1) negstability=1;
-  if (negstability) fprintf(stabout, "System went unstable at t=%lf as 1 or more planets had a deviation from its original semi-major axis by %lf or more\n", tfirst, AFRACSTABLE); 
+  if (negstability) fprintf(stabout, "System went unstable at t=%lf as 1 or more planets had a deviation from its original semi-major axis by %lf or more\n", tfirst, AFRACSTABLE);
   if (posstability) fprintf(stabout, "%lf : System went unstable at t=%lf as 1 or more planets had a deviation from its original semi-major axis by %lf or more\n", tlast, tlast, AFRACSTABLE);
   fclose(stabout);
   fclose(stabout2);
@@ -1299,14 +1299,14 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
 
 
 #if (demcmc_compile != 3)
-  long timelistlen; 
+  long timelistlen;
   timelistlen = kk;
 
   double *timelist;
   double *temptimelist;
   double *fluxlist;
   double *errlist;
- 
+
   double *rvtimelist;
   double *rvlist;
   double *rverrlist;
@@ -1366,8 +1366,8 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
   rvtmte[1] = &tve[1][0];
   rvtmte[3] = &tve[2][0];
   rvtmte[2] = rvarr;
-  
-  
+
+
   double **ttvtmte;
   if (TTVCHISQ) {
     int ki;
@@ -1389,13 +1389,13 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
     ttvtmte[2] = ttvarr;
   }
 
-  double *temptlist; 
+  double *temptlist;
   double *timedlc ( double *times, int *cadences, long ntimes, double **transitarr, int nplanets, double rstar, double c1, double c2); //prototype
   double *binnedlc ( double *times, int *cadences, long ntimes, double binwidth, int nperbin,  double **transitarr, int nplanets, double rstar, double c1, double c2);
 
   long marker, l;
   int ntran;
-  l=0;  
+  l=0;
   marker = 0;
   ntran=1;
   double vel;
@@ -1420,7 +1420,7 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
       }
     }
     if (OOO) {
-      
+
       timelist = malloc(kk*sofd);
       long ti;
       for (ti=0; ti<kk; ti++) {
@@ -1428,7 +1428,7 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
       }
 
       int nsort=3;
-      tclist = malloc((nsort*sofd)*kk); 
+      tclist = malloc((nsort*sofd)*kk);
       order = malloc(sofd*kk);
       for (q=0; q<kk; q++) {
         tclist[nsort*q] = timelist[q];
@@ -1480,18 +1480,18 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
       startt = temparr[0][0] - 3.*rstar*RSUNAU/minvel;
       stopt = temparr[ntran-1][0] + 3.*rstar*RSUNAU/minvel;
       while (timelist[marker]<startt && marker<kk-1) {
-        tmte[2][marker+1]=1.0;       
+        tmte[2][marker+1]=1.0;
         marker++;
       }
-      long ntimes=0; 
+      long ntimes=0;
       while (timelist[marker+ntimes]<stopt && marker+ntimes<kk-1) {
-        ntimes++; 
-      } 
+        ntimes++;
+      }
       if (ntimes!=0) {
         trantlist = &timelist[marker];
         if (cadenceswitch==2)  tranclist = &cadencelist[marker];
         if (cadenceswitch == 1 || cadenceswitch == 2) {
-          temptlist = binnedlc( trantlist, tranclist, ntimes, binwidth, nperbin, temparr, ntran, rstar, c1, c2); 
+          temptlist = binnedlc( trantlist, tranclist, ntimes, binwidth, nperbin, temparr, ntran, rstar, c1, c2);
         }
         if (cadenceswitch == 0) {
           temptlist = timedlc( trantlist, tranclist, ntimes, temparr, ntran, rstar, c1, c2);
@@ -1504,7 +1504,7 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
       marker+=ntimes;
       for (ii=0; ii<ntran; ii++) {
         free(temparr[ii]);
-      } 
+      }
       free(temparr);
       ntran=1;
     } else {
@@ -1532,18 +1532,18 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
     startt = temparr[0][0] - 3.*rstar*RSUNAU/minvel;
     stopt = temparr[ntran-1][0] + 3.*rstar*RSUNAU/minvel;
     while (timelist[marker]<startt && marker<kk-1) {
-      tmte[2][marker+1]=1.0;       
+      tmte[2][marker+1]=1.0;
       marker++;
     }
     long ntimes=0;
     while (timelist[marker+ntimes]<stopt && marker+ntimes<kk-1) {
-      ntimes++; 
-    } 
+      ntimes++;
+    }
     if (ntimes!=0) {
       trantlist = &timelist[marker];
       if (cadenceswitch==2)  tranclist = &cadencelist[marker];
       if (cadenceswitch == 1 || cadenceswitch == 2) {
-        temptlist = binnedlc( trantlist, tranclist, ntimes, binwidth, nperbin, temparr, ntran, rstar, c1, c2); 
+        temptlist = binnedlc( trantlist, tranclist, ntimes, binwidth, nperbin, temparr, ntran, rstar, c1, c2);
       }
       if (cadenceswitch == 0) {
         temptlist = timedlc( trantlist, tranclist, ntimes, temparr, ntran, rstar, c1, c2);
@@ -1554,10 +1554,10 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
       }
     }
     marker+=ntimes;
-  
+
     for (ii=0; ii<ntran; ii++) {
       free(temparr[ii]);
-    } 
+    }
     free(temparr);
   }
 
@@ -1565,7 +1565,7 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
     tmte[2][marker+1] = 1.0;
     marker++;
   }
- 
+
   if ( !(dbleq(dilute, 0.0)) ) {
     for (l=0; l<kk; l++) {
       tmte[2][l] = tmte[2][l]*omdilute+dilute;
@@ -1573,9 +1573,9 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
   }
 
   if (cadenceswitch==2) {
-    if (OOO) { 
+    if (OOO) {
       int nsort=4;
-      tclist = malloc((nsort*sofd)*kk); 
+      tclist = malloc((nsort*sofd)*kk);
       for (q=0; q<kk; q++) {
         tclist[nsort*q] = (double) order[q]; //timelist[q];
         tclist[nsort*q+1] = tmte[2][q+1]; //  (double) q;
@@ -1676,7 +1676,7 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
     free(ttviinit);
   }
 
-  free(rad); 
+  free(rad);
   free(transitarr);
   gsl_odeiv_evolve_free(e);
   gsl_odeiv_control_free(c);
@@ -1687,12 +1687,12 @@ double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, dou
   fl_rv[1] = rvtmte;
   fl_rv[2] = ttvtmte;
 
-  
+
   return fl_rv;
 
 #else
 
-  free(rad); 
+  free(rad);
   free(transitarr);
   gsl_odeiv_evolve_free(e);
   gsl_odeiv_control_free(c);
@@ -1714,7 +1714,7 @@ int getinput(char fname[]) {
   const int sofd = SOFD;
   const int sofi = SOFI;
 
-  FILE *inputf = fopen(fname, "r"); 
+  FILE *inputf = fopen(fname, "r");
   if (inputf == NULL) {
     printf("Error: Bad Input File Name\n");
     printf("       Either no file was passed (see README for usage) or\n");
@@ -1762,26 +1762,26 @@ int getinput(char fname[]) {
   fgets(buffer, 1000, inputf);
   fscanf(inputf, "%s %s %li", type, varname, &NSTEPS); fgets(buffer, 1000, inputf);
   fgets(buffer, 1000, inputf);
-  fscanf(inputf, "%s %s %i", type, varname, &CADENCESWITCH); fgets(buffer, 1000, inputf); 
+  fscanf(inputf, "%s %s %i", type, varname, &CADENCESWITCH); fgets(buffer, 1000, inputf);
   printf("cadenceswitch = %i\n", CADENCESWITCH);
   if (!(CADENCESWITCH == 0 || CADENCESWITCH == 1 || CADENCESWITCH == 2)) {
     printf("Error: Cadenceswitch takes only values of 0, 1, or 2.\n");
     exit(0);
   }
   fgets(buffer, 1000, inputf);
-  fscanf(inputf, "%s %s %s", type, varname, TFILE); fgets(buffer, 1000, inputf); 
+  fscanf(inputf, "%s %s %s", type, varname, TFILE); fgets(buffer, 1000, inputf);
   fgets(buffer, 1000, inputf);
   fgets(buffer, 1000, inputf);
-  fscanf(inputf, "%s %s %i", type, varname, &MULTISTAR); fgets(buffer, 1000, inputf); 
+  fscanf(inputf, "%s %s %i", type, varname, &MULTISTAR); fgets(buffer, 1000, inputf);
 
   if (MULTISTAR) {
     printf("WARNING!\n");
     printf("Multiple-stars are disabled in this version of the code\n");
   }
   if (MULTISTAR) PPERPLAN = 11;
-  else PPERPLAN = 8; 
+  else PPERPLAN = 8;
   printf("pperplan=%i\n", PPERPLAN);
-  
+
   fgets(buffer, 1000, inputf);
   fgets(buffer, 1000, inputf);
   fscanf(inputf, "%s %s %i %i %i", type, varname, &RVJITTERFLAG, &NSTARSRV, &NTELESCOPES); fgets(buffer, 1000, inputf);
@@ -1855,9 +1855,9 @@ int getinput(char fname[]) {
   SSTEP = malloc(PSTAR*sofd);
   CSTEP = malloc((PPERPLAN*NPL+PSTAR)*sofd);
   BIMODLIST = malloc((PPERPLAN*NPL+PSTAR)*sofd);
-  
+
   MAXDENSITY = malloc(NPL*sofd);
-  EMAX = malloc(NPL*sofd); 
+  EMAX = malloc(NPL*sofd);
   EPRIORV = malloc(NPL*sofd);
   MASSPRIORCENTERS = malloc(NPL*sofd);
   MASSPRIORSIGMAS = malloc(NPL*sofd);
@@ -1866,7 +1866,7 @@ int getinput(char fname[]) {
 
   fgets(buffer, 1000, inputf);
   fgets(buffer, 1000, inputf);
-  fscanf(inputf, "%s %s %i", type, varname, &SPECTROSCOPY); fgets(buffer, 1000, inputf); 
+  fscanf(inputf, "%s %s %i", type, varname, &SPECTROSCOPY); fgets(buffer, 1000, inputf);
   if (SPECTROSCOPY) {
     fscanf(inputf, "%lf", &SPECRADIUS); fscanf(inputf, "%lf", &SPECERRPOS); fscanf(inputf, "%lf", &SPECERRNEG); fgets(buffer, 1000, inputf);
     printf("spectroscopy = %i, %lf, %lf, %lf\n", SPECTROSCOPY, SPECRADIUS, SPECERRPOS, SPECERRNEG);
@@ -1880,7 +1880,7 @@ int getinput(char fname[]) {
   }
   fgets(buffer, 1000, inputf);
   fgets(buffer, 1000, inputf);
-  fscanf(inputf, "%s %s %i", type, varname, &MASSSPECTROSCOPY); fgets(buffer, 1000, inputf); 
+  fscanf(inputf, "%s %s %i", type, varname, &MASSSPECTROSCOPY); fgets(buffer, 1000, inputf);
   if (MASSSPECTROSCOPY) {
     fscanf(inputf, "%lf", &SPECMASS); fscanf(inputf, "%lf", &MASSSPECERRPOS); fscanf(inputf, "%lf", &MASSSPECERRNEG); fgets(buffer, 1000, inputf);
     printf("MASS spectroscopy = %i, %lf, %lf, %lf\n", MASSSPECTROSCOPY, SPECMASS, MASSSPECERRPOS, MASSSPECERRNEG);
@@ -1894,7 +1894,7 @@ int getinput(char fname[]) {
   }
   fgets(buffer, 1000, inputf);
   fgets(buffer, 1000, inputf);
-  fscanf(inputf, "%s %s %i", type, varname, &LDLAW); fgets(buffer, 1000, inputf); 
+  fscanf(inputf, "%s %s %i", type, varname, &LDLAW); fgets(buffer, 1000, inputf);
   printf("LDLAW = %i\n", LDLAW);
   if (LDLAW == 1) {
     printf("Note: this implementation of the Maxsted+2018 power2 law does not account for mutual transits\n");
@@ -1904,18 +1904,18 @@ int getinput(char fname[]) {
     printf("Error: ldlaw must be 0 or 1\n");
     exit(0);
   }
-  fgets(buffer, 1000, inputf); 
-  fscanf(inputf, "%s %s %i", type, varname, &DIGT0); fgets(buffer, 1000, inputf); 
   fgets(buffer, 1000, inputf);
-  fscanf(inputf, "%s %s %i", type, varname, &IGT90); fgets(buffer, 1000, inputf); 
+  fscanf(inputf, "%s %s %i", type, varname, &DIGT0); fgets(buffer, 1000, inputf);
   fgets(buffer, 1000, inputf);
-  fscanf(inputf, "%s %s %i", type, varname, &INCPRIOR); fgets(buffer, 1000, inputf); 
+  fscanf(inputf, "%s %s %i", type, varname, &IGT90); fgets(buffer, 1000, inputf);
   fgets(buffer, 1000, inputf);
-  fscanf(inputf, "%s %s %i", type, varname, &MGT0); fgets(buffer, 1000, inputf); 
+  fscanf(inputf, "%s %s %i", type, varname, &INCPRIOR); fgets(buffer, 1000, inputf);
+  fgets(buffer, 1000, inputf);
+  fscanf(inputf, "%s %s %i", type, varname, &MGT0); fgets(buffer, 1000, inputf);
   fgets(buffer, 1000, inputf);
   fgets(buffer, 1000, inputf);
   fscanf(inputf, "%s %s %i", type, varname, &DENSITYCUTON); fgets(buffer, 1000, inputf);
-  if (DENSITYCUTON) { 
+  if (DENSITYCUTON) {
     for (i=0; i<npl; i++) fscanf(inputf, "%lf", &MAXDENSITY[i]); fgets(buffer, 1000, inputf); //l.38
     for (i=0; i<npl; i++) {
       if (MAXDENSITY[i] <= 0) {
@@ -1932,11 +1932,11 @@ int getinput(char fname[]) {
   if (!((MASSPRIOR == 0) || (MASSPRIOR == 1))) {
     printf("Error: MASSPRIOR = %i\n", MASSPRIOR);
     printf("       Massprior must be 0 or 1\n");
-    exit(0); 
+    exit(0);
   }
-  if (MASSPRIOR) { 
-    for (i=0; i<npl; i++) fscanf(inputf, "%lf", &MASSPRIORCENTERS[i]); fgets(buffer, 1000, inputf); 
-    for (i=0; i<npl; i++) fscanf(inputf, "%lf", &MASSPRIORSIGMAS[i]); fgets(buffer, 1000, inputf); 
+  if (MASSPRIOR) {
+    for (i=0; i<npl; i++) fscanf(inputf, "%lf", &MASSPRIORCENTERS[i]); fgets(buffer, 1000, inputf);
+    for (i=0; i<npl; i++) fscanf(inputf, "%lf", &MASSPRIORSIGMAS[i]); fgets(buffer, 1000, inputf);
     for (i=0; i<npl; i++) {
       printf("Mass ratio prior for planet %i: %lf +/- %lf\n", i+1, MASSPRIORCENTERS[i], MASSPRIORSIGMAS[i]);
       if (MASSPRIORCENTERS[i] < 0) {
@@ -1955,14 +1955,14 @@ int getinput(char fname[]) {
     fgets(buffer, 1000, inputf);
     fgets(buffer, 1000, inputf);
   }
-  
+
   fgets(buffer, 1000, inputf);
-  fscanf(inputf, "%s %s %i", type, varname, &SQRTE); fgets(buffer, 1000, inputf); 
+  fscanf(inputf, "%s %s %i", type, varname, &SQRTE); fgets(buffer, 1000, inputf);
   //printf("%s\n", buffer);
   fgets(buffer, 1000, inputf);
   fgets(buffer, 1000, inputf);
   fscanf(inputf, "%s %s %i", type, varname, &ECUTON); fgets(buffer, 1000, inputf);
-  if (ECUTON) {  
+  if (ECUTON) {
     for (i=0; i<npl; i++) fscanf(inputf, "%lf", &EMAX[i]); fgets(buffer, 1000, inputf);
     for (i=0; i<npl; i++) {
       if (EMAX[i] <= 0) {
@@ -1970,12 +1970,12 @@ int getinput(char fname[]) {
       }
     }
   } else {
-    fgets(buffer, 1000, inputf); 
+    fgets(buffer, 1000, inputf);
   }
   fgets(buffer, 1000, inputf); //l.45
   fgets(buffer, 1000, inputf); //l.45
   fscanf(inputf, "%s %s %i", type, varname, &EPRIOR); fgets(buffer, 1000, inputf);
-  if (EPRIOR) { 
+  if (EPRIOR) {
     for (i=0; i<npl; i++) fscanf(inputf, "%i", &EPRIORV[i]); fgets(buffer, 1000, inputf);
   } else {
     fgets(buffer, 1000, inputf);
@@ -1984,9 +1984,9 @@ int getinput(char fname[]) {
   fscanf(inputf, "%s %s %lf", type, varname, &ESIGMA); fgets(buffer, 1000, inputf);
   if (ESIGMA <= 0) {
      printf("Warning ESIGMA <= 0, this may cause a crash or hang.\n");
-  } 
+  }
   fgets(buffer, 1000, inputf);
-  fscanf(inputf, "%s %s %i", type, varname, &NTEMPS); fgets(buffer, 1000, inputf); 
+  fscanf(inputf, "%s %s %i", type, varname, &NTEMPS); fgets(buffer, 1000, inputf);
   printf("sqrte, ecuton, eprior[0], esigma = %i, %i, %i, %lf\n", SQRTE, ECUTON, EPRIORV[0], ESIGMA);
   if (NTEMPS != 0){
     printf("WARNING!\n");
@@ -2006,7 +2006,7 @@ int getinput(char fname[]) {
           printf("A value of %i was read in.\n", PARFIX[PPERPLAN*i+j]);
           exit(0);
         }
-      } 
+      }
     }
     fgets(buffer, 1000, inputf);
   }
@@ -2020,15 +2020,15 @@ int getinput(char fname[]) {
         printf("A value of %i was read in.\n", PARFIX[NPL*PPERPLAN+i]);
         exit(0);
       }
-    } 
-  } 
-  fgets(buffer, 1000, inputf); 
-  fgets(buffer, 1000, inputf);
-  fscanf(inputf, "%s %s %i", type, varname, &SPLITINCO); fgets(buffer, 1000, inputf); 
+    }
+  }
   fgets(buffer, 1000, inputf);
   fgets(buffer, 1000, inputf);
+  fscanf(inputf, "%s %s %i", type, varname, &SPLITINCO); fgets(buffer, 1000, inputf);
   fgets(buffer, 1000, inputf);
-  fscanf(inputf, "%s %s %i", type, varname, &BIMODF); fgets(buffer, 1000, inputf); 
+  fgets(buffer, 1000, inputf);
+  fgets(buffer, 1000, inputf);
+  fscanf(inputf, "%s %s %i", type, varname, &BIMODF); fgets(buffer, 1000, inputf);
   printf("bimodf = %i\n", BIMODF);
   fgets(buffer, 1000, inputf);
   fgets(buffer, 1000, inputf);
@@ -2038,20 +2038,20 @@ int getinput(char fname[]) {
   }
   for (i=0; i<PSTAR; i++) fscanf(inputf, "%i", &BIMODLIST[NPL*PPERPLAN+i]); fgets(buffer, 1000, inputf);
   // Infrequently Edited Parameters
-  for (i=0; i<4; i++) fgets(buffer, 1000, inputf); 
-  fscanf(inputf, "%s %s %lf", type, varname, &T0); fgets(buffer, 1000, inputf); 
+  for (i=0; i<4; i++) fgets(buffer, 1000, inputf);
+  fscanf(inputf, "%s %s %lf", type, varname, &T0); fgets(buffer, 1000, inputf);
   printf("t0 = %lf\n", T0);
   fgets(buffer, 1000, inputf);
-  fscanf(inputf, "%s %s %lf", type, varname, &T1); fgets(buffer, 1000, inputf); 
+  fscanf(inputf, "%s %s %lf", type, varname, &T1); fgets(buffer, 1000, inputf);
   fgets(buffer, 1000, inputf);
   printf("t1 = %lf\n", T1);
   if (T1 <= T0 || EPOCH < T0 || EPOCH > T1) {
     printf("t0 = %lf, epoch=%lf, t1=%lf\n", T0, EPOCH, T1);
     printf("Error: You must have t0 <= epoch <= t1 and t0 < t1.\n");
     exit(0);
-  } 
+  }
 
-  fscanf(inputf, "%s %s %lu", type, varname, &OUTPUTINTERVAL); fgets(buffer, 1000, inputf); 
+  fscanf(inputf, "%s %s %lu", type, varname, &OUTPUTINTERVAL); fgets(buffer, 1000, inputf);
   fgets(buffer, 1000, inputf);
   if (OUTPUTINTERVAL <= 0) {
     printf("Outputinterval must be a positive integer\n");
@@ -2059,39 +2059,39 @@ int getinput(char fname[]) {
     printf("If that is not the value you specified, make sure your .in file is formatted correctly.\n");
     exit(0);
   }
-  fscanf(inputf, "%s %s %lu", type, varname, &SEED); fgets(buffer, 1000, inputf); 
+  fscanf(inputf, "%s %s %lu", type, varname, &SEED); fgets(buffer, 1000, inputf);
   fgets(buffer, 1000, inputf);
-  fscanf(inputf, "%s %s %lf", type, varname, &DISPERSE); fgets(buffer, 1000, inputf); 
+  fscanf(inputf, "%s %s %lf", type, varname, &DISPERSE); fgets(buffer, 1000, inputf);
   fgets(buffer, 1000, inputf);
-  fscanf(inputf, "%s %s %lf", type, varname, &OPTIMAL); fgets(buffer, 1000, inputf); 
+  fscanf(inputf, "%s %s %lf", type, varname, &OPTIMAL); fgets(buffer, 1000, inputf);
   fgets(buffer, 1000, inputf);
-  fscanf(inputf, "%s %s %lf", type, varname, &RELAX); fgets(buffer, 1000, inputf); 
+  fscanf(inputf, "%s %s %lf", type, varname, &RELAX); fgets(buffer, 1000, inputf);
   fgets(buffer, 1000, inputf);
   fscanf(inputf, "%s %s %i", type, varname, &NPERBIN); fgets(buffer, 1000, inputf);
   if (CADENCESWITCH > 0 && NPERBIN <= 0) {
     printf("NPERBIN = %i\n", NPERBIN);
     printf("Error: Nperbin must be >= 1\n");
     exit(0);
-  } 
+  }
   fgets(buffer, 1000, inputf);
-  fscanf(inputf, "%s %s %lf", type, varname, &BINWIDTH); fgets(buffer, 1000, inputf); 
+  fscanf(inputf, "%s %s %lf", type, varname, &BINWIDTH); fgets(buffer, 1000, inputf);
   if (CADENCESWITCH > 0 && BINWIDTH <= 0) {
     printf("BINWIDTH = %lf\n", BINWIDTH);
     printf("Error: binwidth must be > 0\n");
     exit(0);
-  } 
+  }
   fgets(buffer, 1000, inputf);
-  fscanf(inputf, "%s %s %i", type, varname, &LTE); fgets(buffer, 1000, inputf); 
+  fscanf(inputf, "%s %s %i", type, varname, &LTE); fgets(buffer, 1000, inputf);
   fgets(buffer, 1000, inputf);
-  fscanf(inputf, "%s %s %lf", type, varname, &OFFSETMULT); fgets(buffer, 1000, inputf); 
-  fscanf(inputf, "%s %s %lf", type, varname, &OFFSETMIN); fgets(buffer, 1000, inputf); 
-  fscanf(inputf, "%s %s %lf", type, varname, &OFFSETMINOUT); fgets(buffer, 1000, inputf); 
+  fscanf(inputf, "%s %s %lf", type, varname, &OFFSETMULT); fgets(buffer, 1000, inputf);
+  fscanf(inputf, "%s %s %lf", type, varname, &OFFSETMIN); fgets(buffer, 1000, inputf);
+  fscanf(inputf, "%s %s %lf", type, varname, &OFFSETMINOUT); fgets(buffer, 1000, inputf);
   fscanf(inputf, "%s %s %lf", type, varname, &DIST2DIVISOR); fgets(buffer, 1000, inputf);
   fgets(buffer, 1000, inputf);
   fscanf(inputf, "%s %s %lf", type, varname, &PRINTEPOCH); fgets(buffer, 1000, inputf);
-  if (PRINTEPOCH > T1 || PRINTEPOCH < EPOCH) { 
+  if (PRINTEPOCH > T1 || PRINTEPOCH < EPOCH) {
     printf("Warning: We must have: epoch <= printepoch <= t1\n");
-    printf("         printepoch was outside this range so printepoch was set to epoch (this should not be a problem in most cases)\n"); 
+    printf("         printepoch was outside this range so printepoch was set to epoch (this should not be a problem in most cases)\n");
     PRINTEPOCH = EPOCH;
   }
   fgets(buffer, 1000, inputf);
@@ -2116,10 +2116,10 @@ int getinput(char fname[]) {
   fscanf(inputf, "%s %s", type, varname); for (j=0; j<PPERPLAN; j++) fscanf(inputf, "%lf", &PSTEP[j]); fgets(buffer, 1000, inputf);
   fgets(buffer, 1000, inputf);
   fgets(buffer, 1000, inputf);
-  fscanf(inputf, "%s %s", type, varname); for (i=0; i<PSTAR; i++) fscanf(inputf, "%lf", &SSTEP[i]); fgets(buffer, 1000, inputf); 
+  fscanf(inputf, "%s %s", type, varname); for (i=0; i<PSTAR; i++) fscanf(inputf, "%lf", &SSTEP[i]); fgets(buffer, 1000, inputf);
   fgets(buffer, 1000, inputf);
 
-  fscanf(inputf, "%s %s %i", type, varname, &STEPFLAG); fgets(buffer, 1000, inputf); 
+  fscanf(inputf, "%s %s %i", type, varname, &STEPFLAG); fgets(buffer, 1000, inputf);
   if (STEPFLAG) {
     for (i=0; i<9; i++) fgets(buffer, 1000, inputf);
     for (i=0; i<npl; i++) {
@@ -2133,7 +2133,7 @@ int getinput(char fname[]) {
     for (i=0; i<npl; i++) memcpy(&STEP[i*PPERPLAN], &PSTEP[0], PPERPLAN*sofd);
     memcpy(&STEP[NPL*PPERPLAN], &SSTEP[0], PSTAR*sofd);
   }
-  
+
   for (j=0; j<PPERPLAN*NPL+PSTAR; j++) {
     if (STEP[j] <= 0. && PARFIX[j] != 1) {
       printf("Warning: STEP[%i] = %lf \n", j, STEP[j]);
@@ -2145,10 +2145,10 @@ int getinput(char fname[]) {
   int nfree = PPERWALKER-nfixed;
 #if (demcmc_compile == 1)
   if (NWALKERS <= nfree) {
-    printf("Warning: N_walkers = %i, N_free = %i\n", NWALKERS, nfree); 
-    printf("         N_Walkers should be > N free parameters.\n"); 
+    printf("Warning: N_walkers = %i, N_free = %i\n", NWALKERS, nfree);
+    printf("         N_Walkers should be > N free parameters.\n");
     printf("         The DEMCMC algorithm may fail to perform correctly.\n");
-  } 
+  }
 #endif
   fclose(inputf);
   return 0;
@@ -2192,7 +2192,7 @@ double *pushpi(double x[], long int lenx) {
       cyclecount += 1;
     }
   }
- 
+
   return x;
 }
 
@@ -2235,7 +2235,7 @@ double *keptostate(double a, double e, double i, double lo, double bo, double f,
   double vx0 = -sqrt(mass/(a*(1.0-pow(e,2)))) * sin(f);
   double vy0 = sqrt(mass/(a*(1.0-pow(e,2)))) * (e+cos(f));
 
-  double *statearr = malloc(6*sofd);  
+  double *statearr = malloc(6*sofd);
   double *state1arr, *state2arr;
   state1arr = rotatekep(x0, y0, i, lo, bo);
   state2arr = rotatekep(vx0, vy0, i, lo, bo);
@@ -2270,7 +2270,7 @@ double *statetokep (double x, double y, double z, double vx, double vy, double v
 
   double a = 1.0/(2.0/r - vsq/mass);
   double e, e1;
-  e1 = 1.0 - hsq/(a*mass); // This little check is due to rounding errors when e=0.0 exactly causing negative square roots. 
+  e1 = 1.0 - hsq/(a*mass); // This little check is due to rounding errors when e=0.0 exactly causing negative square roots.
   if (e1 <= 0) e=0.0;
   else e=sqrt(e1);
   double i = acos(hz/h);
@@ -2306,7 +2306,7 @@ double *statetokep (double x, double y, double z, double vx, double vy, double v
 
 
   double sofd = SOFD;
-  double *kepelements = malloc(6*sofd); 
+  double *kepelements = malloc(6*sofd);
   kepelements[0] = a;
   kepelements[1] = e;
   kepelements[2] = i;
@@ -2324,7 +2324,7 @@ double *keptoorb(double a, double e, double i, double lo, double bo, double f, d
 
   double period = sqrt( (pow(a, 3)*4.0*M_PI*M_PI) / (G * mass) );
   double Tepoch = EPOCH;
-  double E0 = 2.0*atan(sqrt( (1.0-e)/(1.0+e) ) * tan((M_PI/2.0-lo)/2.0) ); 
+  double E0 = 2.0*atan(sqrt( (1.0-e)/(1.0+e) ) * tan((M_PI/2.0-lo)/2.0) );
   double Ef = 2.0*atan(sqrt( (1.0-e)/(1.0+e) ) * tan(f/2.0) );
   double t0 = period/(2.0*M_PI) * ( 2.0*M_PI/period*Tepoch - Ef + E0 + e*sin(Ef) - e*sin(E0) );
   if (t0 < Tepoch) {
@@ -2364,8 +2364,8 @@ double *keptoorbmean(double a, double e, double i, double lo, double bo, double 
 
   double period = sqrt( (pow(a, 3)*4.0*M_PI*M_PI) / (G * mass) );
   double Tepoch = EPOCH;
-  double E0 = 2.0*atan(sqrt( (1.0-e)/(1.0+e) ) * tan((M_PI/2.0-lo)/2.0) ); 
-  double Ef = getE(M, e); 
+  double E0 = 2.0*atan(sqrt( (1.0-e)/(1.0+e) ) * tan((M_PI/2.0-lo)/2.0) );
+  double Ef = getE(M, e);
   double t0 = period/(2.0*M_PI) * ( 2.0*M_PI/period*Tepoch - Ef + E0 + e*sin(Ef) - e*sin(E0) );
   if (t0 < Tepoch) {
     do t0 += period;
@@ -2391,8 +2391,8 @@ double *keptoorbmean(double a, double e, double i, double lo, double bo, double 
 // Compute Orbital xyzvxvyvz array from inputted orbital elements vector
 double ***dsetup2 (double *p, const int npl){
   const int sofd = SOFD;
-  const int sofds = SOFDS; 
- 
+  const int sofds = SOFDS;
+
   int pperplan = PPERPLAN;
   int pstar = PSTAR;
 
@@ -2423,21 +2423,21 @@ double ***dsetup2 (double *p, const int npl){
 #endif
 
   double bigg = 1.0e0; //Newton's constant
-  double ghere = G; //2.9591220363e-4; 
+  double ghere = G; //2.9591220363e-4;
   double jos = 1.0/MSOMJ;  //9.545e-4; //M_jup/M_sol
 
   double *mp = malloc(npl*sofd);
   double *mpjup = malloc(npl*sofd);
   double *msys = malloc((npl+1)*sofd);
-  msys[0] = ms;  
+  msys[0] = ms;
 
   double *a = malloc(npl*sofd);
   double *e = malloc(npl*sofd);
   double *inc = malloc(npl*sofd);
-  double *bo = malloc(npl*sofd); 
+  double *bo = malloc(npl*sofd);
   double *lo = malloc(npl*sofd);
   double *lambda = malloc(npl*sofd);
-  double *f = malloc(npl*sofd);   
+  double *f = malloc(npl*sofd);
 
   for (i=0;i<npl; i++) {
     if (SQRTE) {
@@ -2459,7 +2459,7 @@ double ***dsetup2 (double *p, const int npl){
       printf("This may cause a crash or hang.\n");
     }
 #endif
- 
+
     mpjup[i] = mp[i]*jos;       //          ; M_Jup
     msys[i+1] = msys[i]+mpjup[i];
     a[i] = cbrt(ghere*(msys[i+1])) * pow(cbrt(p[i*pperplan+0]),2) * pow(cbrt(2*M_PI),-2);
@@ -2467,7 +2467,7 @@ double ***dsetup2 (double *p, const int npl){
     double pomega = bo[i]+lo[i];
     double lambda0 = getlambda( (M_PI/2-lo[i]), e[i], pomega);
     double m0 = lambda0-pomega;
-    double me = m0 + 2*M_PI*(epoch - p[i*pperplan+1])/p[i*pperplan+0]; 
+    double me = m0 + 2*M_PI*(epoch - p[i*pperplan+1])/p[i*pperplan+0];
     double mepomega = me+pomega;
     double *lambdaepoint = pushpi(&mepomega,1);
     double lambdae = lambdaepoint[0];
@@ -2496,7 +2496,7 @@ double ***dsetup2 (double *p, const int npl){
     }
   }
 
-#if (demcmc_compile == 0) 
+#if (demcmc_compile == 0)
   if (CONVERT && (XYZFLAG != 2) && (XYZFLAG != 3)) {
     char outfile2str[80];
     strcpy(outfile2str, "xyz_out_");
@@ -2549,7 +2549,7 @@ double ***dsetup2 (double *p, const int npl){
 #endif
 
 
-  
+
   double **statenew = malloc(npl*sofds);
   for (i=0; i<npl; i++) {
     statenew[i] = malloc(6*sofd);
@@ -2607,7 +2607,7 @@ double ***dsetup2 (double *p, const int npl){
     }
   }
 
-#if (demcmc_compile == 0) 
+#if (demcmc_compile == 0)
   if (CONVERT) {
     char outfile2str[80];
     strcpy(outfile2str, "xyz_out_");
@@ -2762,7 +2762,7 @@ double ***dsetup2 (double *p, const int npl){
     for (j=0; j<6; j++) {
       integration_in[2][i+1][j+1] = statenew[i][j];
     }
-    integration_in[2][i+1][7] = p[i*pperplan+7]; 
+    integration_in[2][i+1][7] = p[i*pperplan+7];
   }
   integration_in[3] = malloc(sofds);
   integration_in[3][0] = malloc(4*sofd);
@@ -2825,26 +2825,26 @@ typedef struct
 int icirc_arclist_intersections(circle *circles,int ncircle,arc **routs,int *rnout)
 {
     int	i,j;
-    
+
     arc	*arcs,*aouts;
     int	*acnt;
     int	naout;
-    
+
     arcs=(arc *)malloc(sizeof(arc)*ncircle*ncircle*2);
     acnt=(int *)malloc(sizeof(int)*ncircle);
-    
+
     for ( i=0 ; i<ncircle ; i++ )
     {	acnt[i]=0;		}
-    
+
     for ( i=0 ; i<ncircle ; i++ )
     { for ( j=0 ; j<ncircle ; j++ )
     {	double	xa,ya,xb,yb,ra,rb;
         double	dx,dy,d;
         double	w,phia,phi0;
-        
+
         if ( i==j )
             continue;
-        
+
         xa=circles[i].x0;
         ya=circles[i].y0;
         ra=circles[i].r;
@@ -2864,10 +2864,10 @@ int icirc_arclist_intersections(circle *circles,int ncircle,arc **routs,int *rno
         if ( ! ( -1.0 <= w && w <= 1.0 ) )
             continue;
         phia=acos(w);
-        
+
         phi0=atan2(dy,dx);
         if ( phi0 < 0.0 )	phi0+=2*M_PI;
-		
+
         if ( acnt[i] <= 0 )
         {	arc	*a;
             a=&arcs[2*ncircle*i];
@@ -2904,10 +2904,10 @@ int icirc_arclist_intersections(circle *circles,int ncircle,arc **routs,int *rno
             }
             acnt[i]=n;
         }
-        
+
     }
     }
-    
+
     naout=0;
     for ( i=0 ; i<ncircle ; i++ )
     {	if ( acnt[i] <= 0 )
@@ -2937,7 +2937,7 @@ int icirc_arclist_intersections(circle *circles,int ncircle,arc **routs,int *rno
     for ( j=0 ; j<naout ; j++ )
     {	double	x,y,dx,dy;
         int	k;
-        
+
         i=aouts[j].cidx;
         if ( acnt[i] <= 0 )
         {	x=circles[i].x0+circles[i].r;
@@ -2962,13 +2962,13 @@ int icirc_arclist_intersections(circle *circles,int ncircle,arc **routs,int *rno
             }
         }
     }
-    
+
     if ( routs != NULL )	*routs=aouts;
     if ( rnout != NULL )	*rnout=naout;
-    
+
     free(acnt);
     free(arcs);
-    
+
     return(0);
 }
 
@@ -3000,7 +3000,7 @@ int icirc_arclist_free(arc *arcs,int narc)
 double carlson_elliptic_rc(double x,double y)
 {
     double alamb,ave,s,w,xt,yt,ans;
-    
+
     if ( y > 0.0 )
     {	xt=x;
         yt=y;
@@ -3018,9 +3018,9 @@ double carlson_elliptic_rc(double x,double y)
         ave=(1.0/3.0)*(xt+yt+yt);
         s=(yt-ave)/ave;
     } while ( fabs(s) > 0.0012 );
-    
+
     ans=w*(1.0+s*s*(C1+s*(C2+s*(C3+s*C4))))/sqrt(ave);
-    
+
     return(ans);
 }
 
@@ -3064,7 +3064,7 @@ double carlson_elliptic_rd(double x,double y,double z)
 {
     double alamb,ave,delx,dely,delz,ea,eb,ec,ed,ee,fac,
 	sqrtx,sqrty,sqrtz,sum,xt,yt,zt,ans;
-    
+
     xt=x;
     yt=y;
     zt=z;
@@ -3115,7 +3115,7 @@ double carlson_elliptic_rj(double x,double y,double z,double p)
 {
     double	a,alamb,alpha,ans,ave,b,beta,delp,delx,dely,delz,ea,eb,ec,
 	ed,ee,fac,pt,rcx,rho,sqrtx,sqrty,sqrtz,sum,tau,xt,yt,zt;
-    
+
     sum=0.0;
     fac=1.0;
     if ( p > 0.0 )
@@ -3160,12 +3160,12 @@ double carlson_elliptic_rj(double x,double y,double z,double p)
     ec=delp*delp;
     ed=ea-3.0*ec;
     ee=eb+2.0*delp*(ea-ec);
-    
+
     ans=3.0*sum+fac*(1.0+ed*(-C1+C5*ed-C6*ee)+eb*(C7+delp*(-C8+delp*C4))
                      +delp*ea*(C2-delp*C3)-C2*delp*ec)/(ave*sqrt(ave));
-    
+
     if ( p <= 0.0 ) ans=a*(b*ans+3.0*(rcx-carlson_elliptic_rf(xt,yt,zt)));
-    
+
     return(ans);
 }
 
@@ -3195,7 +3195,7 @@ double mttr_integral_primitive(double r,double c,double x)
     double	beta;
     double	iret;
     int         d2neq0, cneqr;
-    
+
     // Eq 24-26 with r=r, rho=c, x=phi'
     q2=r*r+c*c+2*r*c*cos(x);
     d2=r*r+c*c-2*r*c;
@@ -3208,9 +3208,9 @@ double mttr_integral_primitive(double r,double c,double x)
 
     sx=sin(x/2);
     cx=cos(x/2);
-    
+
     if ( 1.0<q2 )	q2=1.0;
-    
+
     w=(1-q2)/(1-d2);
     if ( w<0.0 )	w=0.0;
     // Eq 31-33
@@ -3218,15 +3218,15 @@ double mttr_integral_primitive(double r,double c,double x)
     rd=carlson_elliptic_rd(w,sx*sx,1);
     if ( d2neq0 && cneqr)	rj=carlson_elliptic_rj(w,sx*sx,1,q2/d2);
     else		        rj=0.0;
-    
+
     // Eq 34 line 1
     beta=atan2((c-r)*sx,(c+r)*cx);
     iret=-beta/3;
     // Eq 34 line 2 first term
     iret+=x/6;
-    
+
     w=cx/sqrt(1-d2);
-    
+
     // Eq (34) lines 2-6
     iret+=
     +2.0/ 9.0*c*r*sin(x)*sqrt(1-q2)
@@ -3246,37 +3246,37 @@ double mttr_integral_definite(double r,double c,double x0,double dx)
 {
     double	dc,nx;
     double	ret;
-    
-    
+
+
     // Eq (22) or (21) ?
     if ( c<=0.0 )
     {	if ( r<1.0 )
 		ret=(1-(1-r*r)*sqrt(1-r*r))*dx/3.0;
 	else /* this case implies r==1: */
 		ret=dx/3.0;
-        
+
         return(ret);
     }
-    
+
     if ( dx<0.0 )
     {	x0+=dx;
         dx=-dx;
     }
     while ( x0<0.0 )	x0+=2*M_PI;
     while ( 2*M_PI<=x0 )	x0-=2*M_PI;
-    
+
     ret=0.0;
     while ( 0.0<dx )
     {	dc=2*M_PI-x0;
         if ( dx<dc )	dc=dx,nx=x0+dx;
         else		nx=0.0;
-        
+
         ret+=mttr_integral_primitive(r,c,x0+dc)-mttr_integral_primitive(r,c,x0);
-        
+
         x0=nx;
         dx-=dc;
     }
-   
+
     return(ret);
 }
 
@@ -3284,23 +3284,23 @@ double mttr_integral_definite(double r,double c,double x0,double dx)
 
 // This function takes n circles, computes their overlap, and returns
 // The c's are coefficients of the stellar flux terms
-//c1 is constant term 
+//c1 is constant term
 //c2 is polynomial term
 double mttr_flux_general(circle *circles,int ncircle,double c0,double c1,double c2)
 {
     arc	*arcs,*a;
     int	i,narc;
     double	fc,f0;
-    
+
     // Get circle intersections into *arcs
     icirc_arclist_intersections(circles,ncircle,&arcs,&narc);
-    
+
     fc=0.0;
-    
+
     for ( i=0 ; i<narc ; i++ )
     {	double	sign,x0,y0,r,p0,dp,p1,df0,df1,df2;
         double	x2,y2,r2;
-        
+
         a=&arcs[i];
         if ( a->cidx==0 && a->noidx<=0 )
             sign=+1;
@@ -3308,21 +3308,21 @@ double mttr_flux_general(circle *circles,int ncircle,double c0,double c1,double 
             sign=-1;
         else
             continue;
-        
+
         x0=circles[a->cidx].x0;
         y0=circles[a->cidx].y0;
         r =circles[a->cidx].r;
         p0=a->phi0;
         dp=a->dphi;
         p1=p0+dp;
-        
+
         x2=x0*x0;
         y2=y0*y0;
         r2=r*r;
-        
+
         // Eq 8 last line
         df0=0.5*r*(x0*(sin(p1)-sin(p0))+y0*(-cos(p1)+cos(p0)))+0.5*r*r*dp;
-        
+
         // If c1, then constant term
         if ( c1 != 0.0 )
         {	double	delta,rho;
@@ -3334,7 +3334,7 @@ double mttr_flux_general(circle *circles,int ncircle,double c0,double c1,double 
         }
         else
             df1=0.0;
-        
+
         // If c2 then polynomial term
         if ( c2 != 0.0 )
             // Eq (18)
@@ -3348,17 +3348,17 @@ double mttr_flux_general(circle *circles,int ncircle,double c0,double c1,double 
         }
         else
             df2=0.0;
-        
+
         fc += sign*(c0*df0+c1*df1+c2*df2);
-        
-        
+
+
     }
-    
+
     // normalize
     f0=2.0*M_PI*(c0/2.0+c1/3.0+c2/4.0);
-    
+
     icirc_arclist_free(arcs,narc);
-    
+
     if ( 0.0<f0 )
         return(fc/f0);
     else
@@ -3370,11 +3370,11 @@ double mttr_flux_general(circle *circles,int ncircle,double c0,double c1,double 
 
 double clip(double a, double b, double c)
 {
-        if (a < b) 
+        if (a < b)
                 return b;
-        else if (a > c) 
+        else if (a > c)
                 return c;
-        else 
+        else
                 return a;
 }
 
@@ -3417,7 +3417,7 @@ double Flux_drop_analytical_power_2(double d_radius, double k, double c, double 
 {
         /*
         Calculate the analytical flux drop por the power-2 law.
-        
+
         Parameters
         d_radius : double
                 Projected seperation of centers in units of stellar radii.
@@ -3448,21 +3448,21 @@ double Flux_drop_analytical_power_2(double d_radius, double k, double c, double 
 //
 // This function computes the lightcurve for a single time given the positions of the planets and properties of the star
 double onetlc (int nplanets, circle* system, double rstar, double c1, double c2) {
-        
+
     if (nplanets==0) return 1.0;
- 
+
     double flux;
 
     // Pal+2011 mutual event law
     if (LDLAW == 0) {
-    
+
         double c0 = 1.0;
         double g0, g1, g2;
         g0 = c0-c1-2.0*c2;
         g1 = c1+2.0*c2;
         g2 = c2;
-    
-        flux = mttr_flux_general(system, nplanets+1, g0, g1, g2);// /nflux; 
+
+        flux = mttr_flux_general(system, nplanets+1, g0, g1, g2);// /nflux;
 
     // Maxsted+2018 power2 law
     } else if (LDLAW == 1) {
@@ -3481,7 +3481,7 @@ double onetlc (int nplanets, circle* system, double rstar, double c1, double c2)
             double thisplanetflux = Flux_drop_analytical_power_2(d_radius, k, c, a, f, eps);
             double thisdrop = 1.0 - thisplanetflux;
             runningflux -= thisdrop;
-        } 
+        }
 
         flux = runningflux;
 
@@ -3489,8 +3489,8 @@ double onetlc (int nplanets, circle* system, double rstar, double c1, double c2)
         printf("Error: Currently the only LDLAW options are 1 or 2\n");
         printf("       Please select one of these\n");
         exit(0);
-    } 
-     
+    }
+
 
     return flux;
 
@@ -3529,8 +3529,8 @@ double *timedlc ( double *times, int *cadences, long ntimes, double **transitarr
         system[i+1].r = transitarr[i][5];
     }
 
- 
-    double flux;   
+
+    double flux;
     double t_cur;
     double t_next;
     long n=0;
@@ -3576,7 +3576,7 @@ double *timedlc ( double *times, int *cadences, long ntimes, double **transitarr
 // Computes and bins the lightcurve for a list of times (and cadences) for an array of planet positions as a function of time and the stellar properties
 double *binnedlc ( double *times, int *cadences, long ntimes, double binwidth, int nperbin,  double **transitarr, int nplanets, double rstar, double c1, double c2) {
 
-    //need to take into account extra 1's on either side of transit if bin is wider than buffer.  
+    //need to take into account extra 1's on either side of transit if bin is wider than buffer.
     const int sofd = SOFD;
     const int cadenceswitch = CADENCESWITCH;
 
@@ -3587,7 +3587,7 @@ double *binnedlc ( double *times, int *cadences, long ntimes, double binwidth, i
     double *fluxlist = malloc(ntimes*sofd);
     double rsinau = RSUNAU; //0.0046491; // solar radius in au
     long maxcalls = ntimes*nperbin;// + 1;
-    double rstarau = rsinau*rstar; 
+    double rstarau = rsinau*rstar;
     double *fulltimelist=malloc(maxcalls*sofd);
     long j = 0;
     long jj = 0;
@@ -3630,8 +3630,8 @@ double *binnedlc ( double *times, int *cadences, long ntimes, double binwidth, i
         system[i+1].r = transitarr[i][5];
     }
 
- 
-    double flux;   
+
+    double flux;
     long n=0;
     if (cadenceswitch==2) {
       int nlong=0;
@@ -3686,7 +3686,7 @@ double *binnedlc ( double *times, int *cadences, long ntimes, double binwidth, i
     }
 
     free(fulltimelist);
-//exit(0); 
+//exit(0);
     return fluxlist;
 
 }
@@ -3694,7 +3694,7 @@ double *binnedlc ( double *times, int *cadences, long ntimes, double binwidth, i
 
 
 
-// This runs the DEMCMC 
+// This runs the DEMCMC
 int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
 
   // Load in global vars (This isn't really necessary but is convenient to ensure not changing global vars)
@@ -3731,7 +3731,7 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
   r=gsl_rng_alloc(T);
   gsl_rng_set(r, seed);
   rnw=gsl_rng_alloc(T);
-  
+
   if (TTVCHISQ) {
 
     int i;
@@ -3763,7 +3763,7 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
         exit(0);
       }
       long tt=0;
-      while (fscanf(ttvfiles[i], "%li %lf %lf", &NTTV[i][tt+1], &TTTV[i][tt+1], &ETTV[i][tt+1]) == 3) { 
+      while (fscanf(ttvfiles[i], "%li %lf %lf", &NTTV[i][tt+1], &TTTV[i][tt+1], &ETTV[i][tt+1]) == 3) {
         if (tt>=maxttvs-1) {
           FILE *sout = fopen("demcmc.stdout", "a");
           fprintf(sout, "Too many TTVs, adjust maxttvs or use correct file\n");
@@ -3780,7 +3780,7 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
       TTTV[i][tt+1]=HUGE_VAL;
       ETTV[i][tt+1]=HUGE_VAL;
     }
- 
+
     for (i=0; i<npl; i++) {
       fclose(ttvfiles[i]);
     }
@@ -3788,10 +3788,10 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
   }
 
   FILE *sout;
-  double *p = malloc((npl*pperplan + pstar)*sofd);  
+  double *p = malloc((npl*pperplan + pstar)*sofd);
 
   if (!RESTART) {
- 
+
     int i;
     double *planet1 = malloc(npl*sofd);
     double *period1 = malloc(npl*sofd);
@@ -3810,7 +3810,7 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
     double ms;
     double c0;
     double c1;
-    double rstar; 
+    double rstar;
     double dilute;
     double *jittersize;
     if (RVJITTERFLAG) {
@@ -3820,15 +3820,15 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
     if (TTVJITTERFLAG) {
       jittersizettv=malloc(TTVJITTERTOT*sofd);
     }
- 
+
     char buffer[1000];
-  
+
     FILE *aeifile = fopen(aei, "r");
     if (aeifile == NULL) {
       printf("Bad pldin Input File Name");
       exit(0);
     }
-  
+
     fgets(buffer, 1000, aeifile);
     for (i=0; i<npl; i++) {
       fscanf(aeifile,"%lf %lf %lf %lf %lf %lf %lf %lf %lf", &planet1[i], &period1[i], &t01[i], &e1[i], &inc1[i], &bo1[i], &lo1[i], &mp1[i], &rpors1[i]);
@@ -3860,8 +3860,8 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
       }
       p[i*pperplan+6] = mp1[i];
       p[i*pperplan+7] = rpors1[i];
-      fgets(buffer, 1000, aeifile); // This line usually unnecessarily advances the file pointer to a new line. 
-                                    // Unless  you are not multistar and but have too many inputs. It then  saves you from bad read-ins 
+      fgets(buffer, 1000, aeifile); // This line usually unnecessarily advances the file pointer to a new line.
+                                    // Unless  you are not multistar and but have too many inputs. It then  saves you from bad read-ins
     }
     fscanf(aeifile, "%lf", &ms);
     fgets(buffer, 1000, aeifile);
@@ -3900,12 +3900,12 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
         fscanf(aeifile, "%lf", &rvceleriteps[ki]);
       }
     }
- 
+
     p[npl*pperplan+0] = ms;
     p[npl*pperplan+1] = rstar;
     p[npl*pperplan+2] = c0;
     p[npl*pperplan+3] = c1;
-    p[npl*pperplan+4] = dilute; 
+    p[npl*pperplan+4] = dilute;
     if (RVJITTERFLAG) {
       int ki;
       for (ki=0; ki<RVJITTERTOT; ki++) {
@@ -3933,7 +3933,7 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
 
     // if you gave me input in aei instead of PT0e, change it:
     if (XYZFLAG==5) {
-      double masstot[npl+1]; 
+      double masstot[npl+1];
       masstot[0] = ms;
       for (i=0; i<npl; i++) {
         masstot[i+1] = masstot[i];
@@ -3956,9 +3956,9 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
         free(orbelements);
       }
     }
-    // aei but with mean anomaly not true 
+    // aei but with mean anomaly not true
     if (XYZFLAG==6) {
-      double masstot[npl+1]; 
+      double masstot[npl+1];
       masstot[0] = ms;
       for (i=0; i<npl; i++) {
         masstot[i+1] = masstot[i];
@@ -3983,7 +3983,7 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
 
     fclose(aeifile);
 
-    free(planet1); free(period1); free(t01); free (e1); free(inc1); free(bo1); free(lo1); free(mp1); free(rpors1); free(celeriteps); free(rvceleriteps); 
+    free(planet1); free(period1); free(t01); free (e1); free(inc1); free(bo1); free(lo1); free(mp1); free(rpors1); free(celeriteps); free(rvceleriteps);
     if (RVJITTERFLAG) {
       free(jittersize);
     }
@@ -4027,7 +4027,7 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
   long kk=0;
 
   if (CADENCESWITCH==0 || CADENCESWITCH==1) {
-    while (fscanf(tfile, "%ld %lf %lf %lf %lf %lf", &num, &timelist[kk+1], &flux1, &err1, &fluxlist[kk+1], &errlist[kk+1]) == 6) { 
+    while (fscanf(tfile, "%ld %lf %lf %lf %lf %lf", &num, &timelist[kk+1], &flux1, &err1, &fluxlist[kk+1], &errlist[kk+1]) == 6) {
       if (kk>=timelistlen-1) {
         timelistlen+=1000000;
         timelist = realloc(timelist, timelistlen*sofd);
@@ -4044,14 +4044,14 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
     }
   } else {
     cadencelist = malloc(timelistlen*sofi);
-    while (fscanf(tfile, "%ld %lf %lf %lf %lf %lf %i", &num, &timelist[kk+1], &flux1, &err1, &fluxlist[kk+1], &errlist[kk+1], &cadencelist[kk]) == 7) { 
+    while (fscanf(tfile, "%ld %lf %lf %lf %lf %lf %i", &num, &timelist[kk+1], &flux1, &err1, &fluxlist[kk+1], &errlist[kk+1], &cadencelist[kk]) == 7) {
       if (kk>=timelistlen-1) {
         timelistlen+=1000000;
         timelist = realloc(timelist, timelistlen*sofd);
         fluxlist = realloc(fluxlist, timelistlen*sofd);
         cadencelist = realloc(cadencelist, timelistlen*sofi);
         errlist = realloc(errlist, timelistlen*sofd);
-        
+
         if (timelist==NULL) {
           sout = fopen("demcmc.stdout", "a");
           fprintf(sout, "timelist allocation failure\n");
@@ -4064,7 +4064,7 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
     printf ("\n%s read\n", tfilename);
   }
   fclose(tfile);
-  
+
   timelist[0]=kk;
   fluxlist[0]=kk;
   errlist[0]=kk;
@@ -4102,15 +4102,15 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
     int i;
     for(i=0; i<nbodies; i++) {
       printf("%i, %i\n", i, RVARR[i]);
-      if(RVARR[i]) { 
+      if(RVARR[i]) {
         FILE *rvfile = fopen(RVFARR[i], "r");
         if (rvfile == NULL) {
           sout = fopen("demcmc.stdout", "a");
           fprintf(sout,"Error opening rvfile\n");
           fclose(sout);
           exit(0);
-        } 
-        while (fscanf(rvfile, "%lf %lf %lf %i", &rvtimelist[vv+1], &rvlist[vv+1], &rverrlist[vv+1], &rvtelelist[vv+1]) == 4) { 
+        }
+        while (fscanf(rvfile, "%lf %lf %lf %i", &rvtimelist[vv+1], &rvlist[vv+1], &rverrlist[vv+1], &rvtelelist[vv+1]) == 4) {
           rvbodylist[vv+1] = (double) i;
           if (vv>=rvlistlen-1) {
             rvlistlen+=1000;
@@ -4119,7 +4119,7 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
             rverrlist = realloc(rverrlist, rvlistlen*sofd);
             rvbodylist = realloc(rvbodylist, rvlistlen*sofd);
             rvtelelist = realloc(rvtelelist, rvlistlen*sofi);
-            rvtelelistd = realloc(rvtelelistd, rvlistlen*sofd); 
+            rvtelelistd = realloc(rvtelelistd, rvlistlen*sofd);
             if (rverrlist==NULL || rvtelelistd==NULL) {
               sout = fopen("demcmc.stdout", "a");
               fprintf(sout, "rvlist allocation failure\n");
@@ -4132,9 +4132,9 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
         fclose(rvfile);
       }
     }
-  
+
     printf("vv=%li\n",vv);
-  
+
     rvtimelist[0] = (double) vv;
     rvlist[0] = (double) vv;
     rverrlist[0] = (double) vv;
@@ -4147,7 +4147,7 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
       rvlist[w] = rvlist[w] * MPSTOAUPD;
       rverrlist[w] = rverrlist[w] * MPSTOAUPD;
     }
- 
+
     double bigrvlist[vv*5];
     long z;
     for (z=1; z<(vv+1); z++) {
@@ -4162,7 +4162,7 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
       rvtimelist[z] = bigrvlist[(z-1)*5+0];
       rvlist[z] = bigrvlist[(z-1)*5+1];
       rverrlist[z] = bigrvlist[(z-1)*5+2];
-      rvbodylist[z] = bigrvlist[(z-1)*5+3]; 
+      rvbodylist[z] = bigrvlist[(z-1)*5+3];
       rvtelelistd[z] = bigrvlist[(z-1)*5+4];
     }
 
@@ -4171,7 +4171,7 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
     tve[2]=rverrlist;
     tve[3]=rvbodylist;
     tve[4]=rvtelelistd;
-    free(rvtelelist);    
+    free(rvtelelist);
   }
 
   long ttvlistlen = 5000; // Max number TTVs by default
@@ -4188,7 +4188,7 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
     int ksofar=0;
     for (i=0; i<npl; i++) {
       for (ki=0; ki<NTTV[i][0]; ki++) {
-        nte[0][1+ki+ksofar] = (double) NTTV[i][1+ki]; 
+        nte[0][1+ki+ksofar] = (double) NTTV[i][1+ki];
         nte[1][1+ki+ksofar] = TTTV[i][1+ki];
         nte[2][1+ki+ksofar] = ETTV[i][1+ki];
       }
@@ -4206,7 +4206,7 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
     p0[i] = malloc((npl+1)*sofds);
     int j;
     for (j=0; j<npl; j++) {
-      p0[i][j] = malloc(pperplan*sofd); 
+      p0[i][j] = malloc(pperplan*sofd);
     }
     p0[i][npl] = malloc(pstar*sofd);
   }
@@ -4214,7 +4214,7 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
   int w;
 
   double gamma;
-  double neg2loglikemin; 
+  double neg2loglikemin;
   double *gammaN;
 
   int fixedpars = 0;
@@ -4229,17 +4229,17 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
 
 
   if (RESTART) {
-  
+
       FILE *restartf = fopen(chainres, "r");
       if (restartf == NULL) {
-        printf("Error: %s\n", chainres); 
+        printf("Error: %s\n", chainres);
         printf("nofile\n");
         exit(0);
       }
-      double ignore; 
+      double ignore;
       char ignorec[1000];
       for (i=0; i<nwalkers; i++) {
-        int j; 
+        int j;
         for (j=0; j<npl; j++) {
           fscanf(restartf, " %lf %lf %lf %lf %lf %lf %lf %lf %lf", &ignore, &p0[i][j][0], &p0[i][j][1], &p0[i][j][2], &p0[i][j][3], &p0[i][j][4], &p0[i][j][5], &p0[i][j][6], &p0[i][j][7]);
         }
@@ -4285,13 +4285,13 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
       }
       fclose(restartf);
       printf("Read in Restart pldin\n");
-     
+
       FILE *regammaf = fopen(gres,"r");
       long genres;
       double grac, gammares;
-      fscanf(regammaf, "%li %lf %lf", &genres, &grac, &gammares); 
+      fscanf(regammaf, "%li %lf %lf", &genres, &grac, &gammares);
       fclose(regammaf);
-     
+
       printf("Read in Restart gamma\n");
       // rounding generation
       genres = genres/10;
@@ -4299,7 +4299,7 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
       jj = genres+1;
       // optimal multiplier
       gamma = gammares;
-     
+
       FILE *rebsqf = fopen(bsqres, "r");
       char garbage[10000];
       for (i=0; i<(1+npl+pstar+1); i++) {
@@ -4313,12 +4313,12 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
       fscanf(rebsqf, "%lf", &reneg2loglikemin);
       fclose(rebsqf);
       neg2loglikemin = reneg2loglikemin;
-     
+
       printf("Read in Restart best chi sq\n");
       printf("neg2loglikemin=%lf\n", neg2loglikemin);
-      printf("gamma=%lf\n", gamma); 
-    
-  
+      printf("gamma=%lf\n", gamma);
+
+
   } else {  //if not RESTART
 
     int j;
@@ -4328,7 +4328,7 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
         printf("         Compare the igt90 flag in the .in file to the planetary i values in the .pldin file\n");
         printf("         This may cause initialization to hang.\n");
         break;
-      } 
+      }
     }
 
     printf("Initializing Walkers\n");
@@ -4342,7 +4342,7 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
           do {
             double epsilon = (1-parfix[j*pperplan+k])*step[j*pperplan+k]*gsl_ran_gaussian(r, 1.0);
             // don't split inclinations....
-            //if (splitincO && k==4 && ((i+nwalkers/2)/nwalkers)) p0[i][j][k] = 180. - p[j][k] + epsilon; 
+            //if (splitincO && k==4 && ((i+nwalkers/2)/nwalkers)) p0[i][j][k] = 180. - p[j][k] + epsilon;
             //else if (splitincO && k==5 && ((i+nwalkers/2)/nwalkers)) p0[i][j][k] = -p[j][k] + epsilon;
             //else p0[i][j][k] = p[j][k] + epsilon;
             p0[i][j][k] = p[j*pperplan+k] + epsilon;
@@ -4354,10 +4354,10 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
         do {
         p0[i][npl][j] = p[npl*pperplan+j] + (1-parfix[npl*pperplan+j])*step[npl*pperplan+j]*gsl_ran_gaussian(r, 1.0);
         if ( (int) ceil(disperse) ) p0[i][npl][j] += disperse*(1-parfix[npl*pperplan+j])*step[npl*pperplan+j]*gsl_ran_gaussian(r, 1.0);
-        } while ( (TTVJITTERFLAG || RVJITTERFLAG) && (j > 4 && p0[i][npl][j] < 0.0) ); 
+        } while ( (TTVJITTERFLAG || RVJITTERFLAG) && (j > 4 && p0[i][npl][j] < 0.0) );
       }
-    } 
- 
+    }
+
     // optimal multiplier
     gamma = 2.38 / sqrt(2.*ndim);
 
@@ -4368,7 +4368,7 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
   int pperwalker = PPERWALKER; //npl*pperplan+pstar;
   int totalparams = nwalkers*pperwalker;
   double *p0local = malloc(totalparams*sofd);
-  double **p0localN; 
+  double **p0localN;
 
   for (i=0; i<nwalkers; i++) {
     int j;
@@ -4386,9 +4386,9 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
 #endif
 
 
-  double ***dsetup2 (double *p, const int npl); //prototype 
-  double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, double **nte, int *cadencelist); //prototype 
-  int dpintegrator_single_megno (double ***int_in); //prototype 
+  double ***dsetup2 (double *p, const int npl); //prototype
+  double ***dpintegrator_single (double ***int_in, double **tfe, double **tve, double **nte, int *cadencelist); //prototype
+  int dpintegrator_single_megno (double ***int_in); //prototype
   double *devoerr (double **tmte); //prototype
 
 #if (demcmc_compile==0)
@@ -4398,10 +4398,10 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
   double ***int_in = dsetup2(p, npl);
   printf("int_in %lf, %lf, %lf, %lf\n", int_in[0][0][0], int_in[1][0][0], int_in[2][0][0], int_in[2][1][0]);
 
-  double ***flux_rvs; 
+  double ***flux_rvs;
   flux_rvs = dpintegrator_single(int_in, tfe, tve, nte, cadencelist);
   printf("Integration Complete\n");
-  
+
   double **ttvts = flux_rvs[2];
   double **flux = flux_rvs[0];
   double **radvs = flux_rvs[1];
@@ -4410,8 +4410,8 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
   long il;
   long maxil = (long) dev[0];
   printf("kk=%li\n", maxil);
- 
-  if (! CELERITE) { 
+
+  if (! CELERITE) {
     for (il=0; il<maxil; il++) neg2loglike += dev[il+1]*dev[il+1];
   } else { // if celerite
     neg2loglike = celerite_fit(flux_rvs, p, 0, 0, 1);
@@ -4421,11 +4421,11 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
   printf("neg2loglike=%lf\n", neg2loglike);
 
   if (RVS) {
-    if (! RVCELERITE) { 
+    if (! RVCELERITE) {
       double *newelist;
       if (RVJITTERFLAG) {
         long kj;
-        long maxkj = (long) tve[0][0]; 
+        long maxkj = (long) tve[0][0];
         newelist=malloc((maxkj+1)*sofd);
         newelist[0] = (double) maxkj;
         for (kj=0; kj<maxkj; kj++) {
@@ -4455,7 +4455,7 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
       newelistttv = malloc((maxkj+1)*sofd);
       newelistttv[0] = (double) maxkj;
       for (kj=0; kj<maxkj; kj++) {
-        int jitterindex = (kj < NTTV[0][0]) ? 0 : 1 ; 
+        int jitterindex = (kj < NTTV[0][0]) ? 0 : 1 ;
         double sigmajitter = p[npl*pperplan+5+RVJITTERTOT+jitterindex];
         double quadsum = sigmajitter*sigmajitter + ttvts[3][1+kj]*ttvts[3][1+kj];
         // check that the index on ttvts should be 2
@@ -4476,13 +4476,13 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
   }
   printf("post ttvjitter:\n");
   printf("neg2loglike=%lf\n", neg2loglike);
-  
-//  double photoradius = int_in[3][0][0]; 
+
+//  double photoradius = int_in[3][0][0];
 //  if (SPECTROSCOPY) {
 //    if (photoradius > SPECRADIUS) neg2loglike += pow( (photoradius - SPECRADIUS) / SPECERRPOS, 2 );
 //    else neg2loglike += pow( (photoradius - SPECRADIUS) / SPECERRNEG, 2 );
 //  }
-//  double photomass = int_in[2][0][0]; 
+//  double photomass = int_in[2][0][0];
 //  if (MASSSPECTROSCOPY) {
 //    if (photomass > SPECMASS) neg2loglike += pow( (photomass - SPECMASS) / MASSSPECERRPOS, 2 );
 //    else neg2loglike += pow( (photomass - SPECMASS) / MASSSPECERRNEG, 2 );
@@ -4492,7 +4492,7 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
 //    int i0;
 //    for (i0=0; i0<npl; i0++) {
 //      printf("%lf\n", neg2loglike);
-//      neg2loglike += -2.0*log( sin(p[i0*pperplan+4] *M_PI/180.) ); 
+//      neg2loglike += -2.0*log( sin(p[i0*pperplan+4] *M_PI/180.) );
 //    }
 //  }
 //  printf("neg2loglikenoe=%lf\n", neg2loglike);
@@ -4526,12 +4526,12 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
 //  }
 
   if (XYZFLAG != 0) {
-    // generate p in normal format 
+    // generate p in normal format
     // compute priors
     int i, j;
     double **aeiparam  = malloc(npl*sofds);
     double **orbparam  = malloc(npl*sofds);
-    double masstot[npl+1]; 
+    double masstot[npl+1];
     double stateorig[npl][6];
     masstot[0] = int_in[2][0][0];
     for (i=0; i<npl; i++) {
@@ -4550,12 +4550,12 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
       }
     }
     free(sum);
-    
+
     for (i=0; i<npl; i++) {
-      aeiparam[i] = statetokep(stateorig[i][0], stateorig[i][1], stateorig[i][2], stateorig[i][3], stateorig[i][4], stateorig[i][5], masstot[i+1]); 
+      aeiparam[i] = statetokep(stateorig[i][0], stateorig[i][1], stateorig[i][2], stateorig[i][3], stateorig[i][4], stateorig[i][5], masstot[i+1]);
       orbparam[i] = keptoorb(aeiparam[i][0], aeiparam[i][1], aeiparam[i][2], aeiparam[i][3], aeiparam[i][4], aeiparam[i][5], masstot[i+1]);
     }
-    double *ptemp = malloc((npl*pperplan + pstar)*sofd); 
+    double *ptemp = malloc((npl*pperplan + pstar)*sofd);
     for (i=0; i<npl; i++) {
       ptemp[i*pperplan+0] = orbparam[i][0];
       ptemp[i*pperplan+1] = orbparam[i][1];
@@ -4570,16 +4570,16 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
       ptemp[i*pperplan+5] = orbparam[i][4];
       ptemp[i*pperplan+6] = p[i*pperplan+6];
       ptemp[i*pperplan+7] = p[i*pperplan+7];
-    } 
+    }
     for (i=0; i<pstar; i++) {
       ptemp[npl*pperplan+i] = p[npl*pperplan+i];
-    }      
-    
+    }
+
     for (i=0; i<npl; i++) free(aeiparam[i]);
     free(aeiparam);
     for (i=0; i<npl; i++) free(orbparam[i]);
     free(orbparam);
- 
+
     neg2loglike += compute_priors(ptemp, 0);
     free(ptemp);
 
@@ -4591,11 +4591,11 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
   printf("neg2loglike=%lf\n", neg2loglike);
   free(dev);
 
-  if (CONVERT) {  
+  if (CONVERT) {
     int i, j;
     double **aeiparam  = malloc(npl*sofds);
     double **orbparam  = malloc(npl*sofds);
-    double masstot[npl+1]; 
+    double masstot[npl+1];
     double stateorig[npl][6];
     masstot[0] = int_in[2][0][0];
     for (i=0; i<npl; i++) {
@@ -4614,9 +4614,9 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
       }
     }
     free(sum);
-    
+
     for (i=0; i<npl; i++) {
-      aeiparam[i] = statetokep(stateorig[i][0], stateorig[i][1], stateorig[i][2], stateorig[i][3], stateorig[i][4], stateorig[i][5], masstot[i+1]); 
+      aeiparam[i] = statetokep(stateorig[i][0], stateorig[i][1], stateorig[i][2], stateorig[i][3], stateorig[i][4], stateorig[i][5], masstot[i+1]);
       orbparam[i] = keptoorb(aeiparam[i][0], aeiparam[i][1], aeiparam[i][2], aeiparam[i][3], aeiparam[i][4], aeiparam[i][5], masstot[i+1]);
     }
 
@@ -4632,17 +4632,17 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
     int ip;
     for (ip=0; ip<npl; ip++) {
       fprintf(outfile2, "%1.1lf", pnum);
-      ch++; 
+      ch++;
       pnum+=0.1;
       int ii;
-      fprintf(outfile2, "\t%.15lf", orbparam[ip][0]); 
+      fprintf(outfile2, "\t%.15lf", orbparam[ip][0]);
       fprintf(outfile2, "\t%.15lf", orbparam[ip][1]);
       fprintf(outfile2, "\t%.15lf", orbparam[ip][2]);
       fprintf(outfile2, "\t%.15lf", orbparam[ip][3]*180.0/M_PI);
       fprintf(outfile2, "\t%.15lf", orbparam[ip][4]*180.0/M_PI);
       fprintf(outfile2, "\t%.15lf", orbparam[ip][5]*180.0/M_PI);
       for (ii=6; ii<8; ii++) {
-        fprintf(outfile2, "\t%.15lf", p[ip*pperplan+ii]); 
+        fprintf(outfile2, "\t%.15lf", p[ip*pperplan+ii]);
       }
       fprintf(outfile2, "\n");
     }
@@ -4688,10 +4688,10 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
     pnum = 0.1;
     for (ip=0; ip<npl; ip++) {
       fprintf(outfile2, "%1.1lf", pnum);
-      ch++; 
+      ch++;
       pnum+=0.1;
       int ii;
-      fprintf(outfile2, "\t%.15lf", orbparam[ip][0]); 
+      fprintf(outfile2, "\t%.15lf", orbparam[ip][0]);
       fprintf(outfile2, "\t%.15lf", orbparam[ip][1]);
       if (SQRTE) {
         fprintf(outfile2, "\t%.15lf", sqrt(orbparam[ip][2])*cos(orbparam[ip][5]));
@@ -4703,7 +4703,7 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
       fprintf(outfile2, "\t%.15lf", orbparam[ip][3]*180.0/M_PI);
       fprintf(outfile2, "\t%.15lf", orbparam[ip][4]*180.0/M_PI);
       for (ii=6; ii<8; ii++) {
-        fprintf(outfile2, "\t%.15lf", p[ip*pperplan+ii]); 
+        fprintf(outfile2, "\t%.15lf", p[ip*pperplan+ii]);
       }
       fprintf(outfile2, "\n");
     }
@@ -4746,17 +4746,17 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
     pnum = 0.1;
     for (ip=0; ip<npl; ip++) {
       fprintf(outfile2, "%1.1lf", pnum);
-      ch++; 
+      ch++;
       pnum+=0.1;
       int ii;
-      fprintf(outfile2, "\t%.15lf", aeiparam[ip][0]); 
+      fprintf(outfile2, "\t%.15lf", aeiparam[ip][0]);
       fprintf(outfile2, "\t%.15lf", aeiparam[ip][1]);
       fprintf(outfile2, "\t%.15lf", aeiparam[ip][2]*180.0/M_PI);
       fprintf(outfile2, "\t%.15lf", aeiparam[ip][3]*180.0/M_PI);
       fprintf(outfile2, "\t%.15lf", aeiparam[ip][4]*180.0/M_PI);
       fprintf(outfile2, "\t%.15lf", aeiparam[ip][5]*180.0/M_PI);
       for (ii=6; ii<8; ii++) {
-        fprintf(outfile2, "\t%.15lf", p[ip*pperplan+ii]); 
+        fprintf(outfile2, "\t%.15lf", p[ip*pperplan+ii]);
       }
       fprintf(outfile2, "\n");
     }
@@ -4832,7 +4832,7 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
   for (i=0; i<nwalkers; i++) {
     double ***int_in = dsetup2(&p0local[pperwalker*i], npl);
     //printf("Converted to XYZ\n");
-    double ***flux_rvs; 
+    double ***flux_rvs;
     flux_rvs = dpintegrator_single(int_in, tfe, tve, nte, cadencelist);
     //printf("Computed Flux\n");
     double **ttvts = flux_rvs[2];
@@ -4842,19 +4842,19 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
     double neg2logliketemp = 0;
     long il;
     long maxil = (long) dev[0];
-    if (! CELERITE) { 
+    if (! CELERITE) {
       for (il=0; il<maxil; il++) neg2logliketemp += dev[il+1]*dev[il+1];
     } else { // if celerite
-      neg2logliketemp = celerite_fit(flux_rvs, p0local, i, 0, 0); 
+      neg2logliketemp = celerite_fit(flux_rvs, p0local, i, 0, 0);
     }
     double *newelist;
- 
+
     if (RVS) {
-      if (! RVCELERITE) { 
+      if (! RVCELERITE) {
         double *newelist;
         if (RVJITTERFLAG) {
           long kj;
-          long maxkj = (long) tve[0][0]; 
+          long maxkj = (long) tve[0][0];
           newelist=malloc((maxkj+1)*sofd);
           newelist[0] = (double) maxkj;
           for (kj=0; kj<maxkj; kj++) {
@@ -4873,11 +4873,11 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
         long maxil = (long) rvdev[0];
         for (il=0; il<maxil; il++) neg2logliketemp += rvdev[il+1]*rvdev[il+1];
         free(rvdev);
-  
-  
+
+
       } else { // if rvcelerite
         neg2logliketemp += celerite_fit(flux_rvs, p0local, i, 1, 0);
-      } 
+      }
     }
 
     if (TTVCHISQ) {
@@ -4888,7 +4888,7 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
         newelistttv = malloc((maxkj+1)*sofd);
         newelistttv[0] = (double) maxkj;
         for (kj=0; kj<maxkj; kj++) {
-          int jitterindex = (kj < NTTV[0][0]) ? 0 : 1 ; 
+          int jitterindex = (kj < NTTV[0][0]) ? 0 : 1 ;
           double sigmajitter = p0local[pperwalker*i+npl*pperplan+5+RVJITTERTOT+jitterindex];
           double quadsum = sigmajitter*sigmajitter + ttvts[3][1+kj]*ttvts[3][1+kj];
           // check that the index on ttvts should be 2
@@ -4906,12 +4906,12 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
       }
     }
 
-    neg2logliketemp += compute_priors(p0local, i); 
+    neg2logliketemp += compute_priors(p0local, i);
 
     celeritefail:
 
     neg2loglike0[i] = neg2logliketemp;
- 
+
     //free(evector);
 
     free(int_in[0][0]);
@@ -4943,7 +4943,7 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
 
   }
 
-  
+
 
   if (! RESTART ) {
     // set lowest neg2loglike
@@ -4972,7 +4972,7 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
   gsl_rng_set(rnw, seed*(nwcore+2));
 
   while (jj<nsteps) {
- 
+
     if (RANK==0 && jj % 10 == 0) {
       sout = fopen("demcmc.stdout", "a");
       fprintf(sout, "begin gen %li\n", jj);
@@ -4982,7 +4982,7 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
     //time testing
     struct timespec start, finish;
     double elapsed;
-    if (RANK==0 && jj % 10 ==0) { 
+    if (RANK==0 && jj % 10 ==0) {
       clock_gettime(CLOCK_MONOTONIC, &start);
     }
 
@@ -4990,7 +4990,7 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
     int ncores;
     MPI_Comm_size(MPI_COMM_WORLD, &ncores);
     int npercore = nwalkers / ncores;
-    
+
     //if ((nwalkers % ncores) > 0) {
     //  //printf("WARNING: Nwalkers is not an integer multiple of ncores. This will reduce performance.\n");
     //  //npercore += 1;
@@ -5001,7 +5001,7 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
     //}
     //nwcore = (unsigned long) RANK;
     //printf("ncores %i nwalkers %i\n", ncores, nwalkers);
-    
+
     unsigned long nw;
     long nwinit=nwcore*npercore;
     long nwfin=(nwcore+1)*npercore;
@@ -5011,14 +5011,14 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
       memcpy(p0localcopy, &p0local[nw*pperwalker], pperwalker*sofd);
 
       acceptance[nw] = 1;
-  
+
       unsigned long nw1;
-      do nw1 = gsl_rng_uniform_int(rnw, nwalkersul); while (nw1 == nw); 
+      do nw1 = gsl_rng_uniform_int(rnw, nwalkersul); while (nw1 == nw);
       unsigned long nw2;
-      do nw2 = gsl_rng_uniform_int(rnw, nwalkersul); while (nw2 == nw || nw2 == nw1); 
-  
+      do nw2 = gsl_rng_uniform_int(rnw, nwalkersul); while (nw2 == nw || nw2 == nw1);
+
       int notallowed=0;
-  
+
       int ip;
       if (bimodf && jj % bimodf == 0) {
         for (ip=0; ip<pstar; ip++) {
@@ -5029,7 +5029,7 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
           for (ii=0; ii<pperplan; ii++) {
             p0local[nw*pperwalker+ip*pperplan+ii] += (gamma+(1-gamma)*bimodlist[ip*pperplan+ii])*(p0local[nw1*pperwalker+ip*pperplan+ii]-p0local[nw2*pperwalker+ip*pperplan+ii])*(1-parfix[ip*pperplan+ii])*(1+(1+(gamma-1)*bimodlist[ip*pperplan+ii])*gsl_ran_gaussian(rnw, 0.1));
           }
-        } 
+        }
       } else {
         for (ip=0; ip<pstar; ip++) {
           p0local[nw*pperwalker+npl*pperplan+ip] += gamma*(p0local[nw1*pperwalker+npl*pperplan+ip]-p0local[nw2*pperwalker+npl*pperplan+ip])*(1-parfix[npl*pperplan+ip])*(1+gsl_ran_gaussian(rnw, 0.1));
@@ -5039,22 +5039,22 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
           for (ii=0; ii<pperplan; ii++) {
             p0local[nw*pperwalker+ip*pperplan+ii] += gamma*(p0local[nw1*pperwalker+ip*pperplan+ii]-p0local[nw2*pperwalker+ip*pperplan+ii])*(1-parfix[ip*pperplan+ii])*(1+gsl_ran_gaussian(rnw, 0.1));
           }
-        } 
+        }
       }
-     
-      // Check for chains that have strayed past any hard boundaries. 
-      // No need to integrate any of these.  
-      notallowed += check_boundaries(p0local, nw); 
- 
-      if (notallowed) { 
-          
+
+      // Check for chains that have strayed past any hard boundaries.
+      // No need to integrate any of these.
+      notallowed += check_boundaries(p0local, nw);
+
+      if (notallowed) {
+
         acceptance[nw] = 0;
-  
+
       } else {
-      
+
         double ***nint_in = dsetup2(&p0local[nw*pperwalker], npl);
-  
-        double ***nflux_rvs; 
+
+        double ***nflux_rvs;
         nflux_rvs = dpintegrator_single(nint_in, tfe, tve, nte, cadencelist);
         double **nttvts = nflux_rvs[2];
         double **nflux = nflux_rvs[0];
@@ -5063,18 +5063,18 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
         double nneg2logliketemp = 0;
         long il;
         long maxil = (long) ndev[0];
-        if (! CELERITE) { 
+        if (! CELERITE) {
           for (il=0; il<maxil; il++) nneg2logliketemp += ndev[il+1]*ndev[il+1];
         } else { // if celerite
           nneg2logliketemp = celerite_fit(nflux_rvs, p0local, nw, 0, 0);
         }
         double *newelist;
         if (RVS) {
-          if (! RVCELERITE) { 
+          if (! RVCELERITE) {
             double *newelist;
             if (RVJITTERFLAG) {
               long kj;
-              long maxkj = (long) tve[0][0]; 
+              long maxkj = (long) tve[0][0];
               newelist=malloc((maxkj+1)*sofd);
               newelist[0] = (double) maxkj;
               for (kj=0; kj<maxkj; kj++) {
@@ -5087,12 +5087,12 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
               }
               nradvs[3] = newelist;
             }
-    
+
             double *rvdev = devoerr(nradvs);
             long maxil = (long) rvdev[0];
             for (il=0; il<maxil; il++) nneg2logliketemp += rvdev[il+1]*rvdev[il+1];
             free(rvdev);
-  
+
           } else { // if rvcelerite
             nneg2logliketemp += celerite_fit(nflux_rvs, p0local, nw, 1, 0);
           }
@@ -5105,7 +5105,7 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
             newelistttv = malloc((maxkj+1)*sofd);
             newelistttv[0] = (double) maxkj;
             for (kj=0; kj<maxkj; kj++) {
-              int jitterindex = (kj < NTTV[0][0]) ? 0 : 1 ; 
+              int jitterindex = (kj < NTTV[0][0]) ? 0 : 1 ;
               //double sigmajitter = p[npl][5+RVJITTERTOT+jitterindex];
               double sigmajitter = p0local[pperwalker*nw+npl*pperplan+5+RVJITTERTOT+jitterindex];
               double quadsum = sigmajitter*sigmajitter + nttvts[3][1+kj]*nttvts[3][1+kj];
@@ -5115,7 +5115,7 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
             }
             nttvts[3] = newelistttv;
           }
-        
+
           double *ttvdev = devoerr(nttvts);
           long maxil = (long) ttvdev[0];
           for (il=0; il<maxil; il++) nneg2logliketemp += ttvdev[il+1]*ttvdev[il+1];
@@ -5123,12 +5123,12 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
           if (TTVJITTERFLAG) {
             free(newelistttv);
           }
-  
+
         }
-       
+
 
         nneg2logliketemp += compute_priors(p0local, nw);
- 
+
         double neg2loglike = nneg2logliketemp;
 
         free(nint_in[0][0]);
@@ -5141,7 +5141,7 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
         free(nint_in[3][0]);
         free(nint_in[3]);
         free(nint_in);
-    
+
         free(nflux_rvs[0][2]);
         if (RVS) {
           free(nflux_rvs[1][2]);
@@ -5149,29 +5149,29 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
             free(newelist);
           }
         }
-    
+
         free(nflux_rvs[0]);
         free(nflux_rvs[1]);
         free(nflux_rvs);
-    
+
         free(ndev);
-    
+
         // prob that you should take new state
         double prob;
         prob = exp((neg2loglike0[nw]-neg2loglike)/2.);
- 
+
         double bar = gsl_rng_uniform(rnw);
-    
+
         // accept new state?
         if (prob <= bar || isnan(prob)) {
           acceptance[nw] = 0;
         } else {
           neg2loglike0[nw] = neg2loglike;
-        } 
-  
+        }
+
       }
       //free(evector);
-  
+
       // switch back to old ones if not accepted
       if (acceptance[nw] == 0) {
         memcpy(&p0local[nw*pperwalker], p0localcopy, pperwalker*sofd);
@@ -5199,7 +5199,7 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
     }
 
     MPI_Allgather(&p0local[nwinit*pperwalker], pperwalker*nread, MPI_DOUBLE, p0global, pperwalker*nread, MPI_DOUBLE, MPI_COMM_WORLD);
-    MPI_Gather(&acceptance[nwinit], 1*nread, MPI_INT, acceptanceglobal, 1*nread, MPI_INT, 0, MPI_COMM_WORLD); 
+    MPI_Gather(&acceptance[nwinit], 1*nread, MPI_INT, acceptanceglobal, 1*nread, MPI_INT, 0, MPI_COMM_WORLD);
     MPI_Gather(&neg2loglike0[nwinit], 1*nread, MPI_DOUBLE, neg2loglike0global, 1*nread, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
     memcpy(p0local, p0global, totalparams*sofd);
@@ -5230,24 +5230,24 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
       }
 
       // print out occasionally
-      if (jj % OUTPUTINTERVAL == 0) { 
+      if (jj % OUTPUTINTERVAL == 0) {
         char outfilestr[80];
         strcpy(outfilestr, "demcmc_");
         strcat(outfilestr, OUTSTR);
         strcat(outfilestr, ".out");
         outfile = fopen(outfilestr, "a");
-        
+
         int nwdex;
         for (nwdex=0; nwdex<nwalkers; nwdex++) {
           char ch = 'a';
           double pnum = 0.1;
           for (i=0; i<npl; i++) {
             fprintf(outfile, "%1.1lf", pnum);
-            ch++; 
+            ch++;
             pnum+=0.1;
             int ii;
             for (ii=0; ii<pperplan; ii++) {
-              fprintf(outfile, "\t%.15lf", p0local[nwdex*pperwalker+i*pperplan+ii]);  
+              fprintf(outfile, "\t%.15lf", p0local[nwdex*pperwalker+i*pperplan+ii]);
             }
             fprintf(outfile, "\n");
           }
@@ -5276,7 +5276,7 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
               fprintf(outfile, "%.15lf ; rvcelerite \n", p0local[nwdex*pperwalker+npl*pperplan+5+RVJITTERTOT+TTVJITTERTOT+NCELERITE*CELERITE+i]);
             }
           }
-          fprintf(outfile, "; neg2loglike = %18.11lf, %i, %li\n", neg2loglike0[nwdex], nwdex, jj);  
+          fprintf(outfile, "; neg2loglike = %18.11lf, %i, %li\n", neg2loglike0[nwdex], nwdex, jj);
         }
         fclose(outfile);
       }
@@ -5301,11 +5301,11 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
           for (ip=0; ip<npl; ip++) {
             //fprintf(outfile2, "%c", ch);
             fprintf(outfile2, "%1.1lf", pnum);
-            ch++; 
+            ch++;
             pnum+=0.1;
             int ii;
             for (ii=0; ii<2; ii++) {
-              fprintf(outfile2, "\t%.15lf", p0local[nwdex*pperwalker+ip*pperplan+ii]); 
+              fprintf(outfile2, "\t%.15lf", p0local[nwdex*pperwalker+ip*pperplan+ii]);
             }
             if (SQRTE) {
               fprintf(outfile2, "\t%18.15lf", pow( sqrt( pow(p0local[nwdex*pperwalker+ip*pperplan+2],2) + pow(p0local[nwdex*pperwalker+ip*pperplan+3],2) ), 2) );
@@ -5313,11 +5313,11 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
               fprintf(outfile2, "\t%18.15lf", sqrt( pow(p0local[nwdex*pperwalker+ip*pperplan+2],2) + pow(p0local[nwdex*pperwalker+ip*pperplan+3],2) ) );
             }
             for (ii=4; ii<6; ii++) {
-              fprintf(outfile2, "\t%.15lf", p0local[nwdex*pperwalker+ip*pperplan+ii]); 
+              fprintf(outfile2, "\t%.15lf", p0local[nwdex*pperwalker+ip*pperplan+ii]);
             }
             fprintf(outfile2, "\t%18.15lf", atan2( p0local[nwdex*pperwalker+ip*pperplan+3] , p0local[nwdex*pperwalker+ip*pperplan+2] ) * 180./M_PI);
             for (ii=6; ii<8; ii++) {
-              fprintf(outfile2, "\t%.15lf", p0local[nwdex*pperwalker+ip*pperplan+ii]); 
+              fprintf(outfile2, "\t%.15lf", p0local[nwdex*pperwalker+ip*pperplan+ii]);
             }
             fprintf(outfile2, "\n");
           }
@@ -5397,7 +5397,7 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
 
   int i;
   double ***int_in = dsetup2(p, npl);
-  double ***flux_rvs; 
+  double ***flux_rvs;
   flux_rvs = dpintegrator_single(int_in, tfe, tve, nte, cadencelist);
   free(int_in[0][0]);
   free(int_in[0]);
@@ -5413,7 +5413,7 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
 #endif
   if (TTVCHISQ) {
 
-#if (demcmc_compile==0) 
+#if (demcmc_compile==0)
 
     for (i=0; i<npl; i++) {
       char tempchar[1000];
@@ -5450,11 +5450,11 @@ int demcmc(char aei[], char chainres[], char bsqres[], char gres[]) {
     for (kij=0; kij<3; kij++) {
       free(nte[kij]);
     }
-    free(nte);    
+    free(nte);
   }
   free(tve);
   if (CADENCESWITCH==2) {
-    free(cadencelist); 
+    free(cadencelist);
   }
 
   gsl_rng_free(r);
@@ -5480,8 +5480,8 @@ int main (int argc, char *argv[]) {
   clock_gettime(CLOCK_MONOTONIC, &start);
 
   getinput(argv[1]);
-  
-  void * nullptr;
+
+  void * nullptr_;
 
   int sofi = SOFI;
   RVARR = calloc(NBODIES, sofi);
@@ -5495,20 +5495,20 @@ int main (int argc, char *argv[]) {
     if (argv[i][0] == '-' && argv[i][1]=='r' && argv[i][2]=='v') {
       int body = argv[i][3]-'0';
       RVARR[body] = 1;
-      strcpy(RVFARR[body], &argv[i][5]); 
+      strcpy(RVFARR[body], &argv[i][5]);
       RVS = 1;
       rvscount++;
     }
   }
-   
+
   argc-=rvscount;
 
   if (argc == 3) {
     RESTART = 0;
     if (RVS) {
-      demcmc(argv[2], nullptr, nullptr, nullptr); 
+      demcmc(argv[2], nullptr_, nullptr_, nullptr_);
     } else {
-      demcmc(argv[2], nullptr, nullptr, nullptr); 
+      demcmc(argv[2], nullptr_, nullptr_, nullptr_);
     }
   } else if (argc == 6) {
     RESTART = 1;
@@ -5522,7 +5522,7 @@ int main (int argc, char *argv[]) {
     exit(0);
   }
 
-  
+
   for(i=0; i<NBODIES; i++) {
     free(RVFARR[i]);
   }
@@ -5545,6 +5545,3 @@ int main (int argc, char *argv[]) {
   return 0;
 
 }
-
-
-
